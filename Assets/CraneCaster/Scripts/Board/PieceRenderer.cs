@@ -13,7 +13,7 @@ public class PieceRenderer : MonoBehaviour {
         
         // Create SpriteRenderers for Piece's Blocks
         foreach (Block block in _piece.Blocks) {
-            GameObject blockObj = Instantiate(PieceFactory.BlockBase, _piece.transform, true);
+            GameObject blockObj = Instantiate(Factory.BlockBase, _piece.transform, true);
 
             if (blockObj.TryGetComponent(out SpriteRenderer sr)) {
                 _blockSprites[block] = blockObj.GetComponent<SpriteRenderer>();

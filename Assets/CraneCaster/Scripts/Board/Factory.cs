@@ -1,8 +1,8 @@
 using Photon.Pun;
 using UnityEngine;
 
-public class PieceFactory : MonoBehaviour {
-    public static PieceFactory Instance { get; private set; }
+public class Factory : MonoBehaviour {
+    public static Factory Instance { get; private set; }
 
     public static GameObject PieceBase { get; private set; }
     [SerializeField] GameObject _pieceBase;

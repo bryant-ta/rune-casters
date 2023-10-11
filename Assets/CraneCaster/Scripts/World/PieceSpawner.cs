@@ -10,7 +10,7 @@ public class PieceSpawner : MonoBehaviour {
 	
 	[SerializeField] List<Color> _pieceColors = new();
 
-	float _timer;
+	float _timer = 10; // DEBUG: start spawning immediately
 	public void Update() {
 		if (!PhotonNetwork.IsMasterClient) return;
 		
@@ -24,7 +24,7 @@ public class PieceSpawner : MonoBehaviour {
 	}
 
 	void SpawnPiece() {
-		Piece piece = PieceFactory.Instance.CreatePieceObj(GeneratePieceData(), transform.position);
+		Piece piece = Factory.Instance.CreatePieceObj(GeneratePieceData(), transform.position);
 		if (piece.TryGetComponent(out MoveToPoint mtp)) {
 			mtp.SetMoveToPoint(_endPoint.position);
 			mtp.OnReachedEnd += CleanUpPiece;

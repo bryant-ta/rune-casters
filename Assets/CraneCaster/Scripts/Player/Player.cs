@@ -7,15 +7,16 @@ using UnityEngine;
 [RequireComponent(typeof(PlayerInput))]
 public class Player : MonoBehaviourPun {
     public int PlayerId;
-    
-    [SerializeField] Piece _heldPiece;
+
+    [SerializeField] int _spellDmg;
+    [SerializeField] int _spellAmmo;
+
     [SerializeField] LayerMask _interactableLayer;
-
     [SerializeField] Board _playerBoard;
-    PlayerHealth _attackTarget;
 
+    Piece _heldPiece;
     List<GameObject> _nearObjs = new();
-    
+
     public void Interact() {
         if (_heldPiece == null) {
             PickUp();
@@ -24,34 +25,32 @@ public class Player : MonoBehaviourPun {
         }
     }
 
-    public void RotatePiece() {
-        if (_heldPiece) _heldPiece.photonView.RPC(nameof(Piece.RotateCW), RpcTarget.All);
+    public bool RotatePiece() {
+        if (_heldPiece) {
+            _heldPiece.photonView.RPC(nameof(Piece.RotateCW), RpcTarget.All);
+            return true;
+        } 
+        
+        return false;
     }
-    
-    public void Attack() {
-        if (_attackTarget) {
-            int dmg = _playerBoard.CalculateBoardDamage();
-            _attackTarget.ModifyHp(-dmg);
-            print($"Did {dmg} damage to Player {_attackTarget}");
+
+    public void Cast() {
+        if (_spellAmmo > 0) {
+            _spellAmmo--;
+            // ModifyHp(-dmg);
         }
     }
 
-    public void SelectTarget(int targetPlayer) {
-        if (targetPlayer > PhotonNetwork.CurrentRoom.PlayerCount) {
-            Debug.Log($"Selected target {targetPlayer}, but there are only {PhotonNetwork.CurrentRoom.PlayerCount} players in the room.");
-            return;
-        }
-        
-        // should prob to cache/only update this when player list changes
-        List<PlayerHealth> otherPlayers = new();
-        foreach (Photon.Realtime.Player p in PhotonNetwork.PlayerListOthers) {
-            print("trying " + p.ActorNumber);
-            // GameObject playerObj = (GameObject) p.TagObject;
-            // otherPlayers.Add(playerObj.GetComponent<PlayerHealth>());
-        }
-        
-        _attackTarget = otherPlayers[targetPlayer];
-        print($"Selected Player {_attackTarget} as target");
+    public void PrepareSpell() {
+        Vector2Int hoverPoint = GetHoverPoint();
+        BuildSpell(hoverPoint.x, hoverPoint.y);
+    }
+
+    int BuildSpell(int hoverX, int hoverY) {
+        // TODO: implement board power scoring based on matching color groups and size
+        int power = _playerBoard.CountBlockGroup(hoverX, hoverY);
+        print($"Spell Power: {power}");
+        return power;
     }
 
     void PickUp() {
@@ -86,12 +85,10 @@ public class Player : MonoBehaviourPun {
     void Drop() {
         if (_heldPiece == null) return;
 
-        // localPosition works when Player is child of Board and centered at origin
-        Vector2Int hoverPoint = new Vector2Int(Mathf.RoundToInt(transform.localPosition.x), Mathf.RoundToInt(transform.localPosition.y));
-
+        Vector2Int hoverPoint = GetHoverPoint();
         // print("Hoverpoint" + hoverPoint);
 
-        if (_playerBoard.PlacePiece(_heldPiece, hoverPoint)) {
+        if (_playerBoard.PlacePiece(_heldPiece, hoverPoint.x, hoverPoint.y)) {
             _heldPiece = null;
             return;
         } else {
@@ -119,7 +116,7 @@ public class Player : MonoBehaviourPun {
             _nearObjs.Remove(col.gameObject);
         }
     }
-    
+
     public void Enable() {
         _playerBoard.gameObject.SetActive(true);
         enabled = true;
@@ -127,5 +124,10 @@ public class Player : MonoBehaviourPun {
     public void Disable() {
         _playerBoard.gameObject.SetActive(false);
         enabled = false;
+    }
+
+    Vector2Int GetHoverPoint() {
+        // localPosition works when Player is child of Board and centered at origin
+        return new Vector2Int(Mathf.RoundToInt(transform.localPosition.x), Mathf.RoundToInt(transform.localPosition.y));
     }
 }

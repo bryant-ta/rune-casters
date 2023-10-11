@@ -11,7 +11,7 @@ public class BoardRenderer : MonoBehaviour {
 		
 		// Create SpriteRenderers for Board's Blocks
 		foreach (Block block in _board.Blocks) {
-			GameObject blockObj = Instantiate(PieceFactory.BlockBase, _board.transform, true);
+			GameObject blockObj = Instantiate(Factory.BlockBase, _board.transform, true);
 
 			if (blockObj.TryGetComponent(out SpriteRenderer sr)) {
 				_blockSprites[block] = blockObj.GetComponent<SpriteRenderer>();

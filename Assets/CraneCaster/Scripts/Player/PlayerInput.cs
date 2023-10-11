@@ -19,7 +19,7 @@ public class PlayerInput : MonoBehaviourPun {
     }
 
     // uses Action Type "Button"
-    public void OnInteract(InputAction.CallbackContext ctx) {
+    public void OnPrimary(InputAction.CallbackContext ctx) {
         if (!photonView.IsMine) return;
 
         if (ctx.performed) {
@@ -27,43 +27,23 @@ public class PlayerInput : MonoBehaviourPun {
         }
     }
     
-    public void OnRotate(InputAction.CallbackContext ctx) {
+    public void OnSecondary(InputAction.CallbackContext ctx) {
         if (!photonView.IsMine) return;
 
         if (ctx.performed) {
-            _player.RotatePiece();
+            if (_player.RotatePiece()) {
+                
+            } else {
+                _player.PrepareSpell();
+            }
         }
     }
     
-    public void OnAttack(InputAction.CallbackContext ctx) {
+    public void OnCast(InputAction.CallbackContext ctx) {
         if (!photonView.IsMine) return;
 
         if (ctx.performed) {
-            _player.Attack();
-        }
-    }
-    
-    public void OnSelectTarget1(InputAction.CallbackContext ctx) {
-        if (!photonView.IsMine) return;
-
-        if (ctx.performed) {
-            _player.SelectTarget(1);
-        }
-    }
-    
-    public void OnSelectTarget2(InputAction.CallbackContext ctx) {
-        if (!photonView.IsMine) return;
-
-        if (ctx.performed) {
-            _player.SelectTarget(2);
-        }
-    }
-    
-    public void OnSelectTarget3(InputAction.CallbackContext ctx) {
-        if (!photonView.IsMine) return;
-
-        if (ctx.performed) {
-            _player.SelectTarget(3);
+            _player.Cast();
         }
     }
 }
