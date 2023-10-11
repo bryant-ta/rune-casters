@@ -35,6 +35,10 @@ public class Player : MonoBehaviourPun {
     }
 
     public void Cast() {
+        // DEBUG
+        SpellData spellData = new SpellData() {Dmg = 1, Speed = 2};
+        Factory.Instance.CreateSpellObj(spellData, transform.position);
+        
         if (_spellAmmo > 0) {
             _spellAmmo--;
             // ModifyHp(-dmg);

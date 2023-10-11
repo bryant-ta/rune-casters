@@ -6,9 +6,11 @@ public class Factory : MonoBehaviour {
 
     public static GameObject PieceBase { get; private set; }
     [SerializeField] GameObject _pieceBase;
-
     public static GameObject BlockBase { get; private set; }
     [SerializeField] GameObject _blockBase;
+    
+    public static GameObject SpellBase { get; private set; }
+    [SerializeField] GameObject _spellBase;
     
     void Awake() {
         if (Instance != null && Instance != this) {
@@ -19,6 +21,7 @@ public class Factory : MonoBehaviour {
 
         PieceBase = _pieceBase;
         BlockBase = _blockBase;
+        SpellBase = _spellBase;
     }
 
     bool _flag = true;
@@ -50,5 +53,16 @@ public class Factory : MonoBehaviour {
             _blockBase.transform.rotation, 0, initData);
 
         return blockObj.GetComponent<Block>();
+    }
+    
+    public Spell CreateSpellObj(SpellData spellData, Vector2 position) {
+        object[] initData = {spellData};
+        GameObject spellObj = PhotonNetwork.Instantiate(Constants.PhotonPrefabsPath + _spellBase.name, position,
+            _spellBase.transform.rotation, 0, initData);
+        
+        Spell spell = spellObj.GetComponent<Spell>();
+        spell.GetComponent<PhotonView>().TransferOwnership(PhotonNetwork.MasterClient);
+
+        return spell;
     }
 }
