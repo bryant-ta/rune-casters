@@ -8,7 +8,7 @@ public class GameManager : MonoBehaviourPun {
 	public static GameManager Instance { get; private set; }
 
 	public List<Player> PlayerList => _playerList.ToList();
-	[SerializeField] List<Player> _playerList = new(); // players registered when client joins
+	[SerializeField] List<Player> _playerList = new(); // players registered when client joins, see PlayerSpawner
 
 	[SerializeField] bool _canStart;
 

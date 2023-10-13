@@ -65,4 +65,11 @@ public class Factory : MonoBehaviour {
 
         return spell;
     }
+    
+    public Spell CreateSpellObjLocal(SpellData spellData, Vector2 position, float lag) {
+        Spell spell = Instantiate(_spellBase, position, Quaternion.identity).GetComponent<Spell>();
+        spell.Init(spellData, lag);
+
+        return spell;
+    }
 }

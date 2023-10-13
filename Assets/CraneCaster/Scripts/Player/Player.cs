@@ -35,26 +35,25 @@ public class Player : MonoBehaviourPun {
     }
 
     public void Cast() {
-        // DEBUG
+        photonView.RPC(nameof(S_Cast), RpcTarget.AllViaServer);
+        // if (_spellAmmo > 0) {
+        //     _spellAmmo--;
+        //     // ModifyHp(-dmg);
+        // }
+    }
+
+    [PunRPC]
+    public void S_Cast(PhotonMessageInfo info) {
+        float lag = (float) (PhotonNetwork.Time - info.SentServerTime);
         SpellData spellData = new SpellData() {Dmg = 1, Speed = 2};
-        Factory.Instance.CreateSpellObj(spellData, transform.position);
-        
-        if (_spellAmmo > 0) {
-            _spellAmmo--;
-            // ModifyHp(-dmg);
-        }
+        Spell spell = Factory.Instance.CreateSpellObjLocal(spellData, Vector3.up * 2 + transform.position, lag);
     }
 
     public void PrepareSpell() {
         Vector2Int hoverPoint = GetHoverPoint();
-        BuildSpell(hoverPoint.x, hoverPoint.y);
-    }
-
-    int BuildSpell(int hoverX, int hoverY) {
-        // TODO: implement board power scoring based on matching color groups and size
-        int power = _playerBoard.CountBlockGroup(hoverX, hoverY);
+        int power = _playerBoard.CountBlockGroup(hoverPoint.x, hoverPoint.y);
         print($"Spell Power: {power}");
-        return power;
+        return;
     }
 
     void PickUp() {
@@ -110,7 +109,7 @@ public class Player : MonoBehaviourPun {
     }
 
     void OnTriggerEnter2D(Collider2D col) {
-        if (!_nearObjs.Contains(col.gameObject)) {
+        if (col.gameObject.CompareTag(TagsLookUp.LookUp[Tags.Pickup]) && !_nearObjs.Contains(col.gameObject)) {
             _nearObjs.Add(col.gameObject);
         }
     }

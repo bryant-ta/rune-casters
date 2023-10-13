@@ -2,23 +2,35 @@ using System;
 using Photon.Pun;
 using UnityEngine;
 
-public class Spell : MonoBehaviour, IPunInstantiateMagicCallback {
+public class Spell : MonoBehaviour {
 	public int Dmg => _dmg;
 	[SerializeField] int _dmg;
 	
 	public float Speed => _speed;
 	[SerializeField] float _speed;
-
-	void Awake() {
-		if (!PhotonNetwork.IsMasterClient && PhotonNetwork.InRoom) enabled = false;
+	
+	
+	
+	
+	
+	
+	
+	
+	public void Start()
+	{
+		Destroy(gameObject, 10.0f);
 	}
 
-	public void Init(SpellData spellData) {
+	public void OnTriggerEnter2D(Collider2D col) {
+		// Destroy(gameObject);
+	}
+
+	public void Init(SpellData spellData, float lag) {
 		_dmg = spellData.Dmg;
 		_speed = spellData.Speed;
+		
+		transform.Translate(Vector3.up * _speed * lag);
 	}
-	
-	public void OnPhotonInstantiate(PhotonMessageInfo info) { Init((SpellData) info.photonView.InstantiationData[0]); }
 
 	public void Update() {
 		Move();

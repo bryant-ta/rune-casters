@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class BoardRenderer : MonoBehaviour {
 	Board _board;
+	[SerializeField] Transform _blockContainer;
 	
 	Dictionary<Block, SpriteRenderer> _blockSprites = new();
 
@@ -11,7 +12,7 @@ public class BoardRenderer : MonoBehaviour {
 		
 		// Create SpriteRenderers for Board's Blocks
 		foreach (Block block in _board.Blocks) {
-			GameObject blockObj = Instantiate(Factory.BlockBase, _board.transform, true);
+			GameObject blockObj = Instantiate(Factory.BlockBase, _blockContainer.transform, true);
 
 			if (blockObj.TryGetComponent(out SpriteRenderer sr)) {
 				_blockSprites[block] = blockObj.GetComponent<SpriteRenderer>();

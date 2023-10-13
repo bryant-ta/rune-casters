@@ -14,7 +14,8 @@ public class PlayerSpawner : MonoBehaviourPunCallbacks {
 		}
 
 		// Setup Player
-		int playerId = curNumPlayers - 1;
+		// print(PhotonNetwork.LocalPlayer.ActorNumber);
+		int playerId = PhotonNetwork.LocalPlayer.ActorNumber - 1;
 		Player player = GameManager.Instance.PlayerList[playerId];
 		player.PlayerId = playerId;
 
@@ -25,5 +26,12 @@ public class PlayerSpawner : MonoBehaviourPunCallbacks {
 		if (!player.photonView.IsMine) {
 			player.photonView.TransferOwnership(PhotonNetwork.LocalPlayer); // client authoritative - requires Player Ownership -> Takeover
 		}
+	}
+
+	public override void OnPlayerEnteredRoom(Photon.Realtime.Player newPlayer) {
+		int playerId = newPlayer.ActorNumber - 1;
+		Player player = GameManager.Instance.PlayerList[playerId];
+		player.PlayerId = playerId;
+		// possible problem with 3 players for making sure PlayerID is synced across all 3 clients
 	}
 }
