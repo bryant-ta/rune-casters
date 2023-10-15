@@ -46,6 +46,9 @@ MonoBehaviour:
   - S_Cast
   - DisablePlayerObj
   - S_CreateSpellObj
+  - S_UpdateBlockFromPiece
+  - S_UpdateBlocks
+  - S_DisableBlocks
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

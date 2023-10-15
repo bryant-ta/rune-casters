@@ -55,13 +55,6 @@ public class Factory : MonoBehaviourPun {
         return blockObj.GetComponent<Block>();
     }
     
-    public Spell CreateSpellObjLocal(SpellData spellData, Vector2 position, float lag) {
-        Spell spell = Instantiate(_spellBase, position, Quaternion.identity).GetComponent<Spell>();
-        spell.Init(spellData, lag);
-
-        return spell;
-    }
-    
     // Currently, spells exist and move locally on each client but only master registers hits and damage calculations, then rpcs display effects
     [PunRPC]
     public Spell S_CreateSpellObj(SpellData spellData, Vector2 position, PhotonMessageInfo info) {

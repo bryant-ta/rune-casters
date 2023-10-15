@@ -1,5 +1,3 @@
-using System;
-using Photon.Pun;
 using UnityEngine;
 
 public class Spell : MonoBehaviour {
@@ -32,7 +30,5 @@ public class Spell : MonoBehaviour {
         transform.Translate(_moveDir * _speed * Time.deltaTime);
     }
 
-    public void OnTriggerEnter2D(Collider2D col) {
-        Destroy(gameObject);
-    }
+    public void OnTriggerEnter2D(Collider2D col) { Destroy(gameObject); }
 }

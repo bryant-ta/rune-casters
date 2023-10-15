@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using UnityEngine;
 
@@ -5,6 +6,7 @@ public enum SpellType {
 	
 }
 
+[Serializable]
 public struct SpellData {
 	public int Dmg;
 	public float Speed;

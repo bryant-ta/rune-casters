@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Photon.Pun;
@@ -9,14 +10,16 @@ using UnityEngine.InputSystem;
 public class Player : MonoBehaviourPun {
     public int PlayerId;
 
-    [SerializeField] int _spellDmg;
-    [SerializeField] int _spellAmmo;
-
     [SerializeField] LayerMask _interactableLayer;
     [SerializeField] Board _playerBoard;
 
     Piece _heldPiece;
     List<GameObject> _nearObjs = new();
+
+    [SerializeField] SpellData _preparedSpell;
+    [SerializeField] bool _canCast;
+    [SerializeField] int _spellDmg;
+    [SerializeField] int _spellAmmo;
 
     public void Interact() {
         if (_heldPiece == null) {
@@ -36,20 +39,50 @@ public class Player : MonoBehaviourPun {
     }
 
     public void Cast() {
+        if (!_canCast) return;
+        
         // Set spell direction towards mouse
         Vector3 mouseWorldPosition = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
         Vector3 moveDir = (mouseWorldPosition - transform.position).normalized;
-        SpellData spellData = new SpellData() {Dmg = 10, Speed = 2, MoveDir = moveDir};
+        _preparedSpell.MoveDir = moveDir;
+        
         Vector2 startPos = moveDir * 2f + transform.position; // constant for spell spawn position offset
         
-        Factory.Instance.photonView.RPC(nameof(Factory.S_CreateSpellObj), RpcTarget.AllViaServer, spellData, startPos);
+        Factory.Instance.photonView.RPC(nameof(Factory.S_CreateSpellObj), RpcTarget.AllViaServer, _preparedSpell, startPos);
     }
 
+    Coroutine _preparedSpellLifespan;
     public void PrepareSpell() {
         Vector2Int hoverPoint = GetHoverPoint();
-        int power = _playerBoard.CountBlockGroup(hoverPoint.x, hoverPoint.y);
+        Block hoverBlock = _playerBoard.SelectPosition(hoverPoint.x, hoverPoint.y);
+        if (hoverBlock == null || !hoverBlock.IsActive) return; // hovering over nothing
+        
+        List<Block> spellBlocks = _playerBoard.FindColorBlockGroup(hoverPoint.x, hoverPoint.y);
+        int power = spellBlocks.Count;
         print($"Spell Power: {power}");
-        return;
+        
+        // TODO: delayed prepare with animation for "charging up"
+
+        // Consume blocks part of spell
+        _playerBoard.photonView.RPC(nameof(Board.S_DisableBlocks), RpcTarget.All, (object)spellBlocks.ToArray());
+
+        _preparedSpell = new() {Dmg = power, Speed = power / 2 + 1};
+        
+        // Start prepared spell lifespan
+        if (_preparedSpellLifespan != null) StopCoroutine(_preparedSpellLifespan);
+        _preparedSpellLifespan = StartCoroutine(PreparedSpellLifespan());
+    }
+
+    // Timer tracking how long Player can use their spell
+    public IEnumerator PreparedSpellLifespan() {
+        _canCast = true;
+        
+        float endTime = Time.time + 5; // TODO: not hardcode spell lifespan
+        while (Time.time < endTime) {
+            yield return null;
+        }
+
+        _canCast = false;
     }
 
     void PickUp() {
@@ -109,7 +142,6 @@ public class Player : MonoBehaviourPun {
             _nearObjs.Add(col.gameObject);
         }
     }
-
     void OnTriggerExit2D(Collider2D col) {
         if (_nearObjs.Contains(col.gameObject)) {
             _nearObjs.Remove(col.gameObject);

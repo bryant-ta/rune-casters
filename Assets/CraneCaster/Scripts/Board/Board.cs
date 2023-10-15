@@ -52,7 +52,7 @@ public class Board : MonoBehaviourPun {
 
         // Passed placement checks, update board with new block
         foreach (Block newBlock in newBlocks) {
-            photonView.RPC(nameof(S_UpdateBlock), RpcTarget.All, newBlock, pieceOrigin.x, pieceOrigin.y);
+            photonView.RPC(nameof(S_UpdateBlockFromPiece), RpcTarget.All, newBlock, pieceOrigin.x, pieceOrigin.y);
         }
 
         // Cleanup placed piece
@@ -62,33 +62,34 @@ public class Board : MonoBehaviourPun {
     }
 
     // Returns group of adjacent blocks with the same color
-    public int CountBlockGroup(int originX, int originY) {
-        if (!IsInBounds(originX, originY)) return 0;
-        return CountAdjacentColor(originX, originY, _blocks[originX, originY].Color, new bool[_width,_height]);
+    public List<Block> FindColorBlockGroup(int originX, int originY) {
+        if (!IsInBounds(originX, originY)) return null;
+        return FindAdjacentColorBlocks(originX, originY, _blocks[originX, originY].Color, new bool[_width, _height]);
     }
 
     // Recursively find adjacent blocks of the same color as origin
-    int CountAdjacentColor(int x, int y, Color originColor, bool[,] visited) {
+    List<Block> FindAdjacentColorBlocks(int x, int y, Color originColor, bool[,] visited) {
         // Skip if block is out of bounds, already counted, is inactive(empty), or not the same color as origin
-        if (!IsInBounds(x, y) || visited[x, y] || !_blocks[x, y].IsActive || _blocks[x, y].Color != originColor) return 0;
+        if (!IsInBounds(x, y) || visited[x, y] || !_blocks[x, y].IsActive || _blocks[x, y].Color != originColor) return new List<Block>();
 
         visited[x, y] = true;
-        int count = 1;
-        Vector2Int[] directions = {new (1,0), new (0,1), new (-1,0), new (0,-1)};
+        List<Block> ret = new() {_blocks[x, y]};
+        Vector2Int[] directions = {new(1, 0), new(0, 1), new(-1, 0), new(0, -1)};
 
         foreach (Vector2Int dir in directions) {
             int newX = x + dir.x;
             int newY = y + dir.y;
-            count += CountAdjacentColor(newX, newY, originColor, visited);
+            ret.AddRange(FindAdjacentColorBlocks(newX, newY, originColor, visited));
         }
 
-        return count;
+        return ret;
     }
 
     #region Helper
 
+    // Places piece in board by copying in block data from piece
     [PunRPC]
-    public void S_UpdateBlock(Block newBlock, int originX, int originY) {
+    public void S_UpdateBlockFromPiece(Block newBlock, int originX, int originY) {
         Vector2Int boardPos = new Vector2Int(originX + newBlock.Position.x, originY + newBlock.Position.y);
 
         Block boardBlock = _blocks[boardPos.x, boardPos.y];
@@ -96,6 +97,23 @@ public class Board : MonoBehaviourPun {
         boardBlock.Color = newBlock.Color;
 
         _br.Render();
+    }
+    
+    [PunRPC]
+    public void S_DisableBlocks(Block[] targetBlocks) {
+        for (int i = 0; i < targetBlocks.Length; i++) {
+            Block boardBlock = _blocks[targetBlocks[i].Position.x, targetBlocks[i].Position.y];
+            boardBlock.IsActive = false;
+        }
+        
+        _br.Render();
+    }
+    
+    // TODO: write general UpdateBlocks RPC taking in Block[]
+    
+    public Block SelectPosition(int x, int y) {
+        if (!IsInBounds(x, y)) return null;
+        return _blocks[x, y];
     }
 
     public Block SelectRelative(Vector2Int origin, Vector2Int offset) {
