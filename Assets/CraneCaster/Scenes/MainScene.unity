@@ -692,6 +692,10 @@ PrefabInstance:
       propertyPath: sceneViewId
       value: 5
       objectReference: {fileID: 0}
+    - target: {fileID: 1040271891258225583, guid: 089123c56d4df5643b562b091f2a6a68, type: 3}
+      propertyPath: PlayerId
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 5010852832384989528, guid: 089123c56d4df5643b562b091f2a6a68, type: 3}
       propertyPath: m_Name
       value: Board
@@ -867,6 +871,10 @@ PrefabInstance:
       propertyPath: sceneViewId
       value: 3
       objectReference: {fileID: 0}
+    - target: {fileID: 1040271891258225583, guid: 089123c56d4df5643b562b091f2a6a68, type: 3}
+      propertyPath: PlayerId
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5010852832384989528, guid: 089123c56d4df5643b562b091f2a6a68, type: 3}
       propertyPath: m_Name
       value: Board
@@ -1006,6 +1014,10 @@ PrefabInstance:
       propertyPath: sceneViewId
       value: 7
       objectReference: {fileID: 0}
+    - target: {fileID: 1040271891258225583, guid: 089123c56d4df5643b562b091f2a6a68, type: 3}
+      propertyPath: PlayerId
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 5010852832384989528, guid: 089123c56d4df5643b562b091f2a6a68, type: 3}
       propertyPath: m_Name
       value: Board
@@ -1074,6 +1086,10 @@ PrefabInstance:
     - target: {fileID: -2885342344590102685, guid: 089123c56d4df5643b562b091f2a6a68, type: 3}
       propertyPath: sceneViewId
       value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 1040271891258225583, guid: 089123c56d4df5643b562b091f2a6a68, type: 3}
+      propertyPath: PlayerId
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 5010852832384989528, guid: 089123c56d4df5643b562b091f2a6a68, type: 3}
       propertyPath: m_Name

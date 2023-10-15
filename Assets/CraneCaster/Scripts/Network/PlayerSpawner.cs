@@ -14,10 +14,10 @@ public class PlayerSpawner : MonoBehaviourPunCallbacks {
 		}
 
 		// Setup Player
-		// print(PhotonNetwork.LocalPlayer.ActorNumber);
-		int playerId = PhotonNetwork.LocalPlayer.ActorNumber - 1;
+		int playerId = PhotonNetwork.LocalPlayer.ActorNumber;
 		Player player = GameManager.Instance.PlayerList[playerId];
 		player.PlayerId = playerId;
+		Client.MyPlayer = player;
 
 		// Enable Player on all clients
 		GameManager.Instance.photonView.RPC(nameof(GameManager.EnablePlayerObj), RpcTarget.AllBuffered, playerId); // care for calling this often, buffered
@@ -29,7 +29,8 @@ public class PlayerSpawner : MonoBehaviourPunCallbacks {
 	}
 
 	public override void OnPlayerEnteredRoom(Photon.Realtime.Player newPlayer) {
-		int playerId = newPlayer.ActorNumber - 1;
+		// Set PlayerID for each Player instance on each client
+		int playerId = newPlayer.ActorNumber;
 		Player player = GameManager.Instance.PlayerList[playerId];
 		player.PlayerId = playerId;
 		// possible problem with 3 players for making sure PlayerID is synced across all 3 clients

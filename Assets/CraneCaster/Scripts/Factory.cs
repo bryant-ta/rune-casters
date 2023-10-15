@@ -1,7 +1,7 @@
 using Photon.Pun;
 using UnityEngine;
 
-public class Factory : MonoBehaviour {
+public class Factory : MonoBehaviourPun {
     public static Factory Instance { get; private set; }
 
     public static GameObject PieceBase { get; private set; }
@@ -55,19 +55,19 @@ public class Factory : MonoBehaviour {
         return blockObj.GetComponent<Block>();
     }
     
-    public Spell CreateSpellObj(SpellData spellData, Vector2 position) {
-        object[] initData = {spellData};
-        GameObject spellObj = PhotonNetwork.Instantiate(Constants.PhotonPrefabsPath + _spellBase.name, position,
-            _spellBase.transform.rotation, 0, initData);
-        
-        Spell spell = spellObj.GetComponent<Spell>();
-        spell.GetComponent<PhotonView>().TransferOwnership(PhotonNetwork.MasterClient);
+    public Spell CreateSpellObjLocal(SpellData spellData, Vector2 position, float lag) {
+        Spell spell = Instantiate(_spellBase, position, Quaternion.identity).GetComponent<Spell>();
+        spell.Init(spellData, lag);
 
         return spell;
     }
     
-    public Spell CreateSpellObjLocal(SpellData spellData, Vector2 position, float lag) {
+    // Currently, spells exist and move locally on each client but only master registers hits and damage calculations, then rpcs display effects
+    [PunRPC]
+    public Spell S_CreateSpellObj(SpellData spellData, Vector2 position, PhotonMessageInfo info) {
         Spell spell = Instantiate(_spellBase, position, Quaternion.identity).GetComponent<Spell>();
+        
+        float lag = (float) (PhotonNetwork.Time - info.SentServerTime);
         spell.Init(spellData, lag);
 
         return spell;

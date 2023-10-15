@@ -3,41 +3,36 @@ using Photon.Pun;
 using UnityEngine;
 
 public class Spell : MonoBehaviour {
-	public int Dmg => _dmg;
-	[SerializeField] int _dmg;
-	
-	public float Speed => _speed;
-	[SerializeField] float _speed;
-	
-	
-	
-	
-	
-	
-	
-	
-	public void Start()
-	{
-		Destroy(gameObject, 10.0f);
-	}
+    public int Dmg => _dmg;
+    [SerializeField] int _dmg;
 
-	public void OnTriggerEnter2D(Collider2D col) {
-		// Destroy(gameObject);
-	}
+    // Velocity - consider combining
+    public float Speed => _speed;
+    [SerializeField] float _speed;
+    public Vector2 MoveDir => _moveDir;
+    [SerializeField] Vector2 _moveDir;
 
-	public void Init(SpellData spellData, float lag) {
-		_dmg = spellData.Dmg;
-		_speed = spellData.Speed;
-		
-		transform.Translate(Vector3.up * _speed * lag);
-	}
+    public void Start() {
+        // Spell lifespan
+        Destroy(gameObject, 10.0f);
+    }
 
-	public void Update() {
-		Move();
-	}
+    public void Init(SpellData spellData, float lag) {
+        _dmg = spellData.Dmg;
+        _speed = spellData.Speed;
+        _moveDir = spellData.MoveDir;
 
-	public void Move() {
-		// TODO: implement movement types as IMove and iterate thru IMove list, with associated timings even
-		transform.Translate(Vector3.up * _speed * Time.deltaTime);
-	}
+        transform.Translate(Vector3.up * _speed * lag);
+    }
+
+    public void Update() { Move(); }
+
+    public void Move() {
+        // TODO: implement movement types as IMove and iterate thru IMove list, with associated timings even
+        transform.Translate(_moveDir * _speed * Time.deltaTime);
+    }
+
+    public void OnTriggerEnter2D(Collider2D col) {
+        Destroy(gameObject);
+    }
 }

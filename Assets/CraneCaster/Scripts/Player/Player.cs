@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Photon.Pun;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(PlayerInput))]
 public class Player : MonoBehaviourPun {
@@ -35,18 +36,13 @@ public class Player : MonoBehaviourPun {
     }
 
     public void Cast() {
-        photonView.RPC(nameof(S_Cast), RpcTarget.AllViaServer);
-        // if (_spellAmmo > 0) {
-        //     _spellAmmo--;
-        //     // ModifyHp(-dmg);
-        // }
-    }
-
-    [PunRPC]
-    public void S_Cast(PhotonMessageInfo info) {
-        float lag = (float) (PhotonNetwork.Time - info.SentServerTime);
-        SpellData spellData = new SpellData() {Dmg = 1, Speed = 2};
-        Spell spell = Factory.Instance.CreateSpellObjLocal(spellData, Vector3.up * 2 + transform.position, lag);
+        // Set spell direction towards mouse
+        Vector3 mouseWorldPosition = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+        Vector3 moveDir = (mouseWorldPosition - transform.position).normalized;
+        SpellData spellData = new SpellData() {Dmg = 10, Speed = 2, MoveDir = moveDir};
+        Vector2 startPos = moveDir * 2f + transform.position; // constant for spell spawn position offset
+        
+        Factory.Instance.photonView.RPC(nameof(Factory.S_CreateSpellObj), RpcTarget.AllViaServer, spellData, startPos);
     }
 
     public void PrepareSpell() {

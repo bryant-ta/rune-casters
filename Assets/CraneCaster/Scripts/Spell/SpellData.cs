@@ -1,4 +1,5 @@
 using System.IO;
+using UnityEngine;
 
 public enum SpellType {
 	
@@ -7,6 +8,7 @@ public enum SpellType {
 public struct SpellData {
 	public int Dmg;
 	public float Speed;
+	public Vector2 MoveDir;
 	
 	#region Serialization
 
@@ -17,6 +19,8 @@ public struct SpellData {
 		using (BinaryWriter writer = new BinaryWriter(stream)) {
 			writer.Write(data.Dmg);
 			writer.Write(data.Speed);
+			writer.Write(data.MoveDir.x);
+			writer.Write(data.MoveDir.y);
 
 			return stream.ToArray();
 		}
@@ -27,10 +31,12 @@ public struct SpellData {
 
 		using (MemoryStream stream = new MemoryStream(data))
 		using (BinaryReader reader = new BinaryReader(stream)) {
-			int dmg = reader.ReadInt32();
-			result.Dmg = dmg;
-			float speed = reader.ReadSingle();
-			result.Speed = speed;
+			result.Dmg = reader.ReadInt32();
+			result.Speed = reader.ReadSingle();
+			Vector2 moveDir = new Vector2();
+			moveDir.x = reader.ReadSingle();
+			moveDir.y = reader.ReadSingle();
+			result.MoveDir = moveDir;
 		}
 
 		return result;

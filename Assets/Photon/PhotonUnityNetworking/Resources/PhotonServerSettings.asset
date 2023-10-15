@@ -44,6 +44,8 @@ MonoBehaviour:
   - SpawnPiece
   - EnablePlayerObj
   - S_Cast
+  - DisablePlayerObj
+  - S_CreateSpellObj
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

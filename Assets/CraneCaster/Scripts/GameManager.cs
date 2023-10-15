@@ -18,6 +18,9 @@ public class GameManager : MonoBehaviourPun {
 		} else {
 			Instance = this;
 		}
+		
+		// IMPORTANT: this aligns game's PlayerID with Photon's ActorID, so we don't have to do ActorID - 1 everywhere
+		_playerList.Insert(0, null);
 	}
 
 	// public void UpdatePlayerList() {
@@ -44,6 +47,10 @@ public class GameManager : MonoBehaviourPun {
 	[PunRPC]
 	public void EnablePlayerObj(int playerId) {
 		_playerList[playerId].Enable();
+	}
+	[PunRPC]
+	public void DisablePlayerObj(int playerId) {
+		_playerList[playerId].Disable();
 	}
 	
 	// TODO: implement call to unregister when player disconnects

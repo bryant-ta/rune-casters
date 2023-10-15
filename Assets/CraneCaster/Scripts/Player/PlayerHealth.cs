@@ -3,16 +3,20 @@ using ExitGames.Client.Photon;
 using Photon.Pun;
 using UnityEngine;
 
-[RequireComponent(typeof(PlayerUI))]
+[RequireComponent(typeof(Player), typeof(PlayerUI))]
 public class PlayerHealth : MonoBehaviourPunCallbacks {
     public int Hp => _hp;
     [SerializeField] int _hp;
     public int MaxHp => _maxHp;
     [SerializeField] int _maxHp;
 
+    Player _player;
     PlayerUI _playerUI;
 
-    void Awake() { _playerUI = GetComponent<PlayerUI>(); }
+    void Awake() {
+        _player = GetComponent<Player>();
+        _playerUI = GetComponent<PlayerUI>();
+    }
 
     /// <summary>
     /// Changes player health.
@@ -20,6 +24,8 @@ public class PlayerHealth : MonoBehaviourPunCallbacks {
     /// <param name="value">Positive input heals. Negative input damages.</param>
     /// <returns>Actual health value delta including sign</returns>
     public int ModifyHp(int value) {
+        if (!PhotonNetwork.IsMasterClient) return 0; // Only master should modify Player hp
+        
         int newHp = _hp + value;
         if (newHp <= 0) {
             newHp = 0;
@@ -27,36 +33,36 @@ public class PlayerHealth : MonoBehaviourPunCallbacks {
             newHp = _maxHp;
         }
 
-        int delta = newHp - _hp;
-        _hp = newHp;
-        Hashtable properties = new Hashtable() {{CustomPropertiesLookUp.LookUp[CustomPropertiesKey.Hp], _hp}};
-        PhotonNetwork.LocalPlayer.SetCustomProperties(properties);
-        
-        // Health display updated per client in OnPlayerPropertiesUpdate, TODO: consider updating actual health value there too?
+        Hashtable properties = new Hashtable() {{CustomPropertiesLookUp.LookUp[CustomPropertiesKey.Hp], newHp}};
+        PhotonNetwork.PlayerList[_player.PlayerId - 1].SetCustomProperties(properties);
+        // Health updated and display updated per client in OnPlayerPropertiesUpdate.
 
         // Death
         if (_hp == 0) {
             Debug.Log("Player died");
+            GameManager.Instance.photonView.RPC(nameof(GameManager.DisablePlayerObj), RpcTarget.AllBuffered, _player.PlayerId);
         }
 
-        return delta;
+        return newHp - _hp;
     }
 
-    // Called on other clients after local client calculates final changed hp
-    // note: OnPlayerPropertiesUpdate gets called on local client too, should only use SetCustomProperties new value after this callback to be synced
-    // note: every instance of Player will trigger this callback, need to modify correct player form GameManager.PlayerList
+    // Called on all clients on updating player after master calculates final changed hp
+    // note: OnPlayerPropertiesUpdate gets called on local client too, should only use SetCustomProperties' new value after this callback to be synced
+    // note: every instance of Player will trigger this callback, need to apply to correct player from GameManager.PlayerList
     public override void OnPlayerPropertiesUpdate(Photon.Realtime.Player targetPlayer, Hashtable changedProps) {
-        // Ensures anything below only runs on Player that sent the property update (on each client)
-        if (GetComponent<Player>().PlayerId != targetPlayer.ActorNumber) return;
+        // Ensures below only runs on Player instance that sent the property update (still runs on each client)
+        if (_player.PlayerId != targetPlayer.ActorNumber) return;
+        Debug.Log($"Properties origin: {_player.PlayerId}");
         
-        GameManager.Instance.PlayerList[targetPlayer.ActorNumber].GetComponent<PlayerUI>().UpdateHpBar((float) (int) changedProps[CustomPropertiesLookUp.LookUp[CustomPropertiesKey.Hp]] / _maxHp);
+        _hp = (int) changedProps[CustomPropertiesLookUp.LookUp[CustomPropertiesKey.Hp]];
+        _playerUI.UpdateHpBar((float) _hp / _maxHp);
     }
 
     public void OnTriggerEnter2D(Collider2D col) {
         if (!PhotonNetwork.IsMasterClient) return;
 
         if (col.gameObject.CompareTag(TagsLookUp.LookUp[Tags.Spell])) {
-            print("collided spell");
+            // Debug.Log($"Spell hit Player {_player.PlayerId}");
             Spell spell = col.gameObject.GetComponent<Spell>();
             ModifyHp(-spell.Dmg);
         }

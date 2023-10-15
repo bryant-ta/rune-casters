@@ -8,6 +8,8 @@ public class Client : MonoBehaviourPunCallbacks {
 
     [SerializeField] string _nickName = "Jaayced"; // TEMP: remove when player input for name
 
+    public static Player MyPlayer;
+
     public string NickName {
         get {
             int value = Random.Range(0, 9999); // TEMP: remove when player input for name
