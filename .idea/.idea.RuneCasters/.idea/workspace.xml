@@ -16,6 +16,7 @@
     </file-type-list>
   </component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.ugui@1.0.0/Tests/Runtime/Layout/AspectRatioFitterTests.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.inputsystem@1.7.0/InputSystem/Utilities/DelegateHelpers.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.burst@1.6.6/Tests/Runtime/NativeTriggeredManagedExceptionsBurstJobs.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
@@ -70,24 +71,5 @@
   <component name="UnityUnitTestConfiguration" currentTestLauncher="EditMode" />
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Assets/Photon/PhotonUnityNetworking/Code/Views/PhotonTransformViewClassic.cs</url>
-          <line>261</line>
-          <properties documentPath="C:\Users\bryan\Documents\1_Unity\RuneCasters\Assets\Photon\PhotonUnityNetworking\Code\Views\PhotonTransformViewClassic.cs" initialLine="266" containingFunctionPresentation="method 'UpdatePosition'">
-            <startOffsets>
-              <option value="9570" />
-            </startOffsets>
-            <endOffsets>
-              <option value="9650" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="3" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>

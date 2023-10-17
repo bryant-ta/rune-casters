@@ -34,7 +34,7 @@ public class PieceSpawner : MonoBehaviour {
 		// TEMP: replace with drawn mini version of pieces?
 		// Vector3 scale = piece.transform.localScale * 0.5f;
 		// GameManager.Instance.photonView.RPC(nameof(NetworkUtils.S_SetScale), RpcTarget.All, piece.photonView.ViewID, scale);
-		piece.transform.localScale *= 0.5f; // synced by PhotonTransformViewClassic
+		piece.transform.localScale *= Constants.PieceShrinkFactor; // synced by PhotonTransformViewClassic
 	}
 
 	PieceData GeneratePieceData() {

@@ -193,4 +193,4 @@ MonoBehaviour:
     InterpolateOption: 0
     InterpolateMoveTowardsSpeed: 1
     InterpolateLerpSpeed: 0
-  _photonViewObjTransform: {fileID: 3704484634741073858}
+  _photonViewObjTransform: {fileID: 856087307635457119}

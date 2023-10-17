@@ -60,7 +60,7 @@ public class Player : MonoBehaviourPun {
         Vector3 moveDir = (mouseWorldPosition - transform.position).normalized;
         _preparedSpell.MoveDir = moveDir;
         
-        Vector2 startPos = moveDir * 2f + transform.position; // constant for spell spawn position offset
+        Vector2 startPos = moveDir * Constants.SpellInstantiatePosOffset + transform.position; // constant for spell spawn position offset
         
         Factory.Instance.photonView.RPC(nameof(Factory.S_CreateSpellObj), RpcTarget.AllViaServer, _preparedSpell, startPos);
     }

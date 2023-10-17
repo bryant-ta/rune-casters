@@ -49,8 +49,8 @@ namespace Photon.Pun
         bool m_ReceivedNetworkUpdate = false;
         
         /////////  CUSTOM  /////////
-        [Tooltip("The SpriteRenderer associated with the Photon View that this component manipulates. The SpriteRenderer will be briefly disabled until the first transform update arrives on network.")]
-        [SerializeField] Transform _photonViewObjTransform;
+        [Tooltip("The GameObject hold visual associated with the Photon View that this component manipulates. The GameObject will be briefly disabled until the first transform update arrives on network.")]
+        public GameObject _photonViewObjTransform;
         ///////  END CUSTOM  ///////
 
         /// <summary>
@@ -88,10 +88,9 @@ namespace Photon.Pun
             this.UpdatePosition();
             this.UpdateRotation();
             this.UpdateScale();
-            
+
             /////////  CUSTOM  /////////
-            // TODO: this is not in right place, needs to be in OnPhotonSerialize or after bc first call of Update will be immediately after enable, and network values will not be in yet
-            if (_photonViewObjTransform != null) {
+            if (_photonViewObjTransform != null && m_PositionControl.receivedFirstNetworkUpdate) {
                 _photonViewObjTransform.gameObject.SetActive(true);
             }
             ///////  END CUSTOM  ///////
@@ -227,6 +226,12 @@ namespace Photon.Pun
         Queue<Vector3> m_OldNetworkPositions = new Queue<Vector3>();
 
         bool m_UpdatedPositionAfterOnSerialize = true;
+        
+        /////////  CUSTOM  /////////
+        // Used to only show networked object renderer after first network update was received. I believe rotation/scale are also only sent
+        // at same time as position, so just checking in position should be fine...
+        public bool receivedFirstNetworkUpdate;
+        ///////  END CUSTOM  ///////
 
         public PhotonTransformViewPositionControl(PhotonTransformViewPositionModel model)
         {
@@ -429,6 +434,10 @@ namespace Photon.Pun
             {
                 m_OldNetworkPositions.Dequeue();
             }
+
+            /////////  CUSTOM  /////////
+            receivedFirstNetworkUpdate = true;
+            ///////  END CUSTOM  ///////
         }
     }
 

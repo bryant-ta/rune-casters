@@ -2,6 +2,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public static class Constants {
+    // Debug Values
+    public const float PieceShrinkFactor = 0.5f;
+    public const float SpellInstantiatePosOffset = 2.5f;
+    
+    // Paths
     public const string PhotonPrefabsPath = "PhotonPrefabs/";
 }
 
