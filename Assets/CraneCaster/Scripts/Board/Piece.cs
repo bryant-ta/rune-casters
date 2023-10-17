@@ -3,14 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using Photon.Pun;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class Piece : MonoBehaviourPun, IPunInstantiateMagicCallback {
     public List<Vector2Int> Shape => _shape;
     [SerializeField] List<Vector2Int> _shape;
-
     public Color Color => _color;
     [SerializeField] Color _color;
-
     public bool CanRotate => _canRotate;
     [SerializeField] bool _canRotate;
 
@@ -18,6 +17,8 @@ public class Piece : MonoBehaviourPun, IPunInstantiateMagicCallback {
     List<Block> _blocks = new();
 
     PieceRenderer _pr;
+
+    public Action OnRender;
 
     public void Init(PieceData pieceData) {
         _shape = pieceData.Shape;
@@ -30,7 +31,7 @@ public class Piece : MonoBehaviourPun, IPunInstantiateMagicCallback {
             _blocks.Add(block);
         }
 
-        // Init PieceRenderer with populated Block list
+        // Init main PieceRenderer with populated Block list (ghost PieceRenderer inited on pick up)
         if (TryGetComponent(out PieceRenderer pr)) {
             _pr = pr;
             _pr.Init(this);
@@ -53,7 +54,7 @@ public class Piece : MonoBehaviourPun, IPunInstantiateMagicCallback {
             block.Position = new Vector2Int(newX, newY);
         }
 
-        _pr.Render();
+        OnRender.Invoke();
     }
 
     // Rotate counterclockwise
@@ -68,32 +69,6 @@ public class Piece : MonoBehaviourPun, IPunInstantiateMagicCallback {
             block.Position = new Vector2Int(newX, newY);
         }
 
-        _pr.Render();
+        OnRender.Invoke();
     }
-
-    // Rotates the current piece clockwise.
-    // public bool RotatePiece()
-    // {
-    // 	if (!piece.canRotate)
-    // 	{
-    // 		return false;
-    // 	}
-    //
-    // 	Dictionary<Block, Position> piecePosition = piece.GetPositions();
-    // 	var offset = piece.blocks[0].Position;
-    //
-    // 	foreach (var block in piece.blocks)
-    // 	{
-    // 		var row = block.Position.Row - offset.Row;
-    // 		var column = block.Position.Column - offset.Column;
-    // 		block.MoveTo(-column + offset.Row, row + offset.Column);
-    // 	}
-    //
-    // 	if (HasCollisions() && !ResolveCollisionsAfterRotation())
-    // 	{
-    // 		RestoreSavedPiecePosition(piecePosition);
-    // 		return false;
-    // 	}
-    // 	return true;
-    // }
 }

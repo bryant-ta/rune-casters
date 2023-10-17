@@ -10,7 +10,7 @@ public class PieceSpawner : MonoBehaviour {
 	
 	[SerializeField] List<Color> _pieceColors = new();
 
-	float _timer = 10; // DEBUG: start spawning immediately
+	float _timer = 99; // DEBUG: start spawning immediately
 	public void Update() {
 		if (!PhotonNetwork.IsMasterClient) return;
 		
@@ -25,10 +25,16 @@ public class PieceSpawner : MonoBehaviour {
 
 	void SpawnPiece() {
 		Piece piece = Factory.Instance.CreatePieceObj(GeneratePieceData(), transform.position);
+		
 		if (piece.TryGetComponent(out MoveToPoint mtp)) {
 			mtp.SetMoveToPoint(_endPoint.position);
 			mtp.OnReachedEnd += CleanUpPiece;
 		}
+
+		// TEMP: replace with drawn mini version of pieces?
+		// Vector3 scale = piece.transform.localScale * 0.5f;
+		// GameManager.Instance.photonView.RPC(nameof(NetworkUtils.S_SetScale), RpcTarget.All, piece.photonView.ViewID, scale);
+		piece.transform.localScale *= 0.5f; // synced by PhotonTransformViewClassic
 	}
 
 	PieceData GeneratePieceData() {

@@ -13,13 +13,26 @@ public class Player : MonoBehaviourPun {
     [SerializeField] LayerMask _interactableLayer;
     [SerializeField] Board _playerBoard;
 
+    [Header("Pieces")]
     Piece _heldPiece;
+    [SerializeField] Transform _heldPieceContainer;
     List<GameObject> _nearObjs = new();
+    [SerializeField] PieceRenderer _ghostPr;
+    Transform _ghostPrContainer;
 
+    [Header("Spells")]
     [SerializeField] SpellData _preparedSpell;
     [SerializeField] bool _canCast;
     [SerializeField] int _spellDmg;
     [SerializeField] int _spellAmmo;
+
+    void Awake() {
+        _ghostPrContainer = _ghostPr.transform;
+    }
+
+    void Update() {
+        HandleGhostPiece();
+    }
 
     public void Interact() {
         if (_heldPiece == null) {
@@ -32,6 +45,7 @@ public class Player : MonoBehaviourPun {
     public bool RotatePiece() {
         if (_heldPiece) {
             _heldPiece.photonView.RPC(nameof(Piece.RotateCW), RpcTarget.All);
+            _lastHoverPoint = new Vector2Int(-1, -1); // reset value for HandleGhostPiece
             return true;
         } 
         
@@ -77,7 +91,7 @@ public class Player : MonoBehaviourPun {
     public IEnumerator PreparedSpellLifespan() {
         _canCast = true;
         
-        float endTime = Time.time + 5; // TODO: not hardcode spell lifespan
+        float endTime = Time.time + 10; // TODO: not hardcode spell lifespan
         while (Time.time < endTime) {
             yield return null;
         }
@@ -100,9 +114,13 @@ public class Player : MonoBehaviourPun {
 
         // Pickup piece
         if (_heldPiece) {
+            // Disable held piece's self movement
             if (_heldPiece.TryGetComponent(out MoveToPoint mtp)) {
                 _heldPiece.photonView.RPC(nameof(MoveToPoint.Disable), RpcTarget.All);
             }
+            
+            // Setup ghost piece
+            _ghostPr.Init(_heldPiece);
 
             // Take ownership of held piece
             // _heldPiece.photonView.RequestOwnership(); // server authoritative - requires Piece Ownership -> Request
@@ -110,7 +128,7 @@ public class Player : MonoBehaviourPun {
 
             // Make piece a child object of player
             GameManager.Instance.photonView.RPC(nameof(NetworkUtils.S_SetTransform), RpcTarget.All, _heldPiece.photonView.ViewID,
-                Vector3.zero, Quaternion.identity, photonView.ViewID, false);
+                _heldPieceContainer.localPosition, Quaternion.identity, photonView.ViewID, false);
         }
     }
 
@@ -118,7 +136,6 @@ public class Player : MonoBehaviourPun {
         if (_heldPiece == null) return;
 
         Vector2Int hoverPoint = GetHoverPoint();
-        // print("Hoverpoint" + hoverPoint);
 
         if (_playerBoard.PlacePiece(_heldPiece, hoverPoint.x, hoverPoint.y)) {
             _heldPiece = null;
@@ -134,6 +151,37 @@ public class Player : MonoBehaviourPun {
                 trash.TrashObj(_heldPiece.gameObject);
                 _heldPiece = null;
             }
+        }
+    }
+
+    Vector2Int _lastHoverPoint = new Vector2Int(-1, -1);
+    void HandleGhostPiece() {
+        if (_heldPiece == null) {
+            _ghostPr.gameObject.SetActive(false);
+            return;
+        }
+        
+        Vector2Int hoverPoint = GetHoverPoint();
+        if (_lastHoverPoint == hoverPoint) return;
+        _lastHoverPoint = hoverPoint;
+        
+        // Disable ghost piece if held piece is not over player's board
+        if (_playerBoard.ValidatePiece(_heldPiece, hoverPoint.x, hoverPoint.y, _playerBoard.IsInBounds)) {
+            _ghostPr.gameObject.SetActive(true);
+        } else {
+            _ghostPr.gameObject.SetActive(false);
+            return;
+        }
+        
+        // Move ghost piece object to grid snap pos
+        _ghostPr.transform.localPosition = new Vector3(hoverPoint.x, hoverPoint.y, 0);
+        
+        // Change ghost piece visual when placement would overlap an existing piece
+        // TODO: Add texture on ghost piece if invalid placement
+        if (_playerBoard.ValidatePiece(_heldPiece, hoverPoint.x, hoverPoint.y, _playerBoard.IsValidPlacement)) {
+            _ghostPr.RemoveBlockOverlay();
+        } else {
+            _ghostPr.SetBlockOverlay();
         }
     }
 

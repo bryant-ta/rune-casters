@@ -47,6 +47,11 @@ namespace Photon.Pun
         PhotonView m_PhotonView;
 
         bool m_ReceivedNetworkUpdate = false;
+        
+        /////////  CUSTOM  /////////
+        [Tooltip("The SpriteRenderer associated with the Photon View that this component manipulates. The SpriteRenderer will be briefly disabled until the first transform update arrives on network.")]
+        [SerializeField] Transform _photonViewObjTransform;
+        ///////  END CUSTOM  ///////
 
         /// <summary>
         /// Flag to skip initial data when Object is instantiated and rely on the first deserialized data instead.
@@ -65,6 +70,12 @@ namespace Photon.Pun
         void OnEnable()
         {
             m_firstTake = true;
+            
+            /////////  CUSTOM  /////////
+            if (_photonViewObjTransform != null && m_PhotonView != null && !m_PhotonView.IsMine && PhotonNetwork.IsConnectedAndReady) {
+                _photonViewObjTransform.gameObject.SetActive(false);
+            }
+            ///////  END CUSTOM  ///////
         }
 
         void Update()
@@ -77,6 +88,13 @@ namespace Photon.Pun
             this.UpdatePosition();
             this.UpdateRotation();
             this.UpdateScale();
+            
+            /////////  CUSTOM  /////////
+            // TODO: this is not in right place, needs to be in OnPhotonSerialize or after bc first call of Update will be immediately after enable, and network values will not be in yet
+            if (_photonViewObjTransform != null) {
+                _photonViewObjTransform.gameObject.SetActive(true);
+            }
+            ///////  END CUSTOM  ///////
         }
 
         void UpdatePosition()
@@ -87,6 +105,7 @@ namespace Photon.Pun
             }
 
             transform.localPosition = this.m_PositionControl.UpdatePosition(transform.localPosition);
+            
         }
 
         void UpdateRotation()

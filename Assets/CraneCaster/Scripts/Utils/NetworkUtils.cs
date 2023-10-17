@@ -43,6 +43,12 @@ public class NetworkUtils : MonoBehaviour {
             targetTransform.rotation = rotation;
         }
     }
+
+    [PunRPC]
+    public void S_SetScale(int targetID, Vector3 scale) {
+        Transform targetTransform = PhotonView.Find(targetID).gameObject.transform;
+        targetTransform.localScale = scale;
+    }
     
     // public static byte[] Vector2IntToBytes(Vector2Int vector) {
     //     using MemoryStream stream = new MemoryStream();

@@ -34,25 +34,13 @@ public class Board : MonoBehaviourPun {
         }
     }
 
-    public bool PlacePiece(Piece piece, int hoverX, int hoverY) {
+    public bool PlacePiece(Piece piece, int x, int y) {
         // Debug.Log("PlaceBlock - hoverPos: " + hoverPos);
-
-        Vector2Int pieceOrigin = new Vector2Int(hoverX, hoverY); // board bottom left corner is gameobject origin
-        List<Block> newBlocks = new();
-
-        // Validate placed locations
-        foreach (Block block in piece.Blocks) {
-            Vector2Int boardPos = new Vector2Int(pieceOrigin.x + block.Position.x, pieceOrigin.y + block.Position.y);
-
-            if (!IsValidPlacement(boardPos.x, boardPos.y)) return false;
-
-            newBlocks.Add(block);
-            // Debug.Log("Point: " + boardPos);
-        }
+        if (!ValidatePiece(piece, x, y, IsValidPlacement)) return false;
 
         // Passed placement checks, update board with new block
-        foreach (Block newBlock in newBlocks) {
-            photonView.RPC(nameof(S_UpdateBlockFromPiece), RpcTarget.All, newBlock, pieceOrigin.x, pieceOrigin.y);
+        foreach (Block newBlock in piece.Blocks) {
+            photonView.RPC(nameof(S_UpdateBlockFromPiece), RpcTarget.All, newBlock, x, y);
         }
 
         // Cleanup placed piece
@@ -110,7 +98,8 @@ public class Board : MonoBehaviourPun {
     }
     
     // TODO: write general UpdateBlocks RPC taking in Block[]
-    
+
+    // Selection
     public Block SelectPosition(int x, int y) {
         if (!IsInBounds(x, y)) return null;
         return _blocks[x, y];
@@ -124,8 +113,20 @@ public class Board : MonoBehaviourPun {
 
         return _blocks[targetX, targetY];
     }
+    
+    // Validation
+    public bool ValidatePiece(Piece piece, int x, int y, Func<int, int, bool> checkType) {
+        foreach (Block block in piece.Blocks) {
+            Vector2Int boardPos = new Vector2Int(x + block.Position.x, y + block.Position.y);
+            if (!checkType(boardPos.x, boardPos.y)) {
+                return false;
+            }
+        }
 
-    public bool IsValidPlacement(int x, int y) { return IsInBounds(x, y) && !_blocks[x, y].IsActive; }
+        return true;
+    }
+    public bool IsValidPlacement(int x, int y) { return IsInBounds(x, y) && IsOpen(x, y); }
+    public bool IsOpen(int x, int y) { return !_blocks[x, y].IsActive; }
     public bool IsInBounds(int x, int y) { return !(x < 0 || x >= _width || y < 0 || y >= _height); }
 
     #endregion

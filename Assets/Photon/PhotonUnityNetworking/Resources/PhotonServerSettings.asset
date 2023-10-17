@@ -49,6 +49,7 @@ MonoBehaviour:
   - S_UpdateBlockFromPiece
   - S_UpdateBlocks
   - S_DisableBlocks
+  - S_SetScale
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1
