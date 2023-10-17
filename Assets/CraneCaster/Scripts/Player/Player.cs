@@ -5,6 +5,7 @@ using System.Linq;
 using Photon.Pun;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using PhotonHashtable = ExitGames.Client.Photon;
 
 [RequireComponent(typeof(PlayerInput))]
 public class Player : MonoBehaviourPun {
@@ -90,7 +91,11 @@ public class Player : MonoBehaviourPun {
         float timer = Constants.SpellLifespan; // TODO: not hardcode spell lifespan
         while (timer > 0) {
             timer -= Time.deltaTime;
-            OnUpdateSpellLifeSpan.Invoke(timer / Constants.SpellLifespan);
+            // OnUpdateSpellLifeSpan.Invoke(timer / Constants.SpellLifespan);
+            
+            PhotonHashtable.Hashtable properties = new PhotonHashtable.Hashtable() {{CustomPropertiesLookUp.LookUp[CustomPropertiesKey.SpellLifespan], timer}};
+            PhotonNetwork.PlayerList[PlayerId - 1].SetCustomProperties(properties);
+            
             yield return null;
         }
 

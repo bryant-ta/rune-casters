@@ -14,11 +14,13 @@ public static class Constants {
 /***************************    Custom Properties    ***************************/
 public enum CustomPropertiesKey {
     Hp,
+    SpellLifespan,
 }
 
 public static class CustomPropertiesLookUp {
     public static Dictionary<CustomPropertiesKey, string> LookUp = new() {
         { CustomPropertiesKey.Hp, "Hp" },
+        { CustomPropertiesKey.SpellLifespan, "SpellLifespan" },
     };
 }
 

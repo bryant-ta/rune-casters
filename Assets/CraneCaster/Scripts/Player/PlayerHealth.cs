@@ -50,12 +50,12 @@ public class PlayerHealth : MonoBehaviourPunCallbacks {
     // note: OnPlayerPropertiesUpdate gets called on local client too, should only use SetCustomProperties' new value after this callback to be synced
     // note: every instance of Player will trigger this callback, need to apply to correct player from GameManager.PlayerList
     public override void OnPlayerPropertiesUpdate(Photon.Realtime.Player targetPlayer, Hashtable changedProps) {
+        if (changedProps[CustomPropertiesLookUp.LookUp[CustomPropertiesKey.Hp]] == null) return;
+        
         // Ensures below only runs on Player instance that sent the property update (still runs on each client)
         if (_player.PlayerId != targetPlayer.ActorNumber) return;
-        Debug.Log($"Properties origin: {_player.PlayerId}");
         
         _hp = (int) changedProps[CustomPropertiesLookUp.LookUp[CustomPropertiesKey.Hp]];
-        // _playerUI.UpdateHpBar((float) _hp / _maxHp);
         OnUpdateHp.Invoke((float) _hp / _maxHp);
     }
 
@@ -63,7 +63,6 @@ public class PlayerHealth : MonoBehaviourPunCallbacks {
         if (!PhotonNetwork.IsMasterClient) return;
 
         if (col.gameObject.CompareTag(TagsLookUp.LookUp[Tags.Spell])) {
-            // Debug.Log($"Spell hit Player {_player.PlayerId}");
             Spell spell = col.gameObject.GetComponent<Spell>();
             ModifyHp(-spell.Dmg);
         }
