@@ -5,6 +5,7 @@ public static class Constants {
     // Debug Values
     public const float PieceShrinkFactor = 0.5f;
     public const float SpellInstantiatePosOffset = 2.5f;
+    public const float SpellLifespan = 10f; // TODO: not hardcode spell lifespan
     
     // Paths
     public const string PhotonPrefabsPath = "PhotonPrefabs/";

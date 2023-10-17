@@ -3,7 +3,7 @@ using ExitGames.Client.Photon;
 using Photon.Pun;
 using UnityEngine;
 
-[RequireComponent(typeof(Player), typeof(PlayerUI))]
+[RequireComponent(typeof(Player))]
 public class PlayerHealth : MonoBehaviourPunCallbacks {
     public int Hp => _hp;
     [SerializeField] int _hp;
@@ -11,11 +11,11 @@ public class PlayerHealth : MonoBehaviourPunCallbacks {
     [SerializeField] int _maxHp;
 
     Player _player;
-    PlayerUI _playerUI;
+
+    public Action<float> OnUpdateHp;
 
     void Awake() {
         _player = GetComponent<Player>();
-        _playerUI = GetComponent<PlayerUI>();
     }
 
     /// <summary>
@@ -55,7 +55,8 @@ public class PlayerHealth : MonoBehaviourPunCallbacks {
         Debug.Log($"Properties origin: {_player.PlayerId}");
         
         _hp = (int) changedProps[CustomPropertiesLookUp.LookUp[CustomPropertiesKey.Hp]];
-        _playerUI.UpdateHpBar((float) _hp / _maxHp);
+        // _playerUI.UpdateHpBar((float) _hp / _maxHp);
+        OnUpdateHp.Invoke((float) _hp / _maxHp);
     }
 
     public void OnTriggerEnter2D(Collider2D col) {

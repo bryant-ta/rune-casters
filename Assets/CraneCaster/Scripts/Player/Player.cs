@@ -15,20 +15,15 @@ public class Player : MonoBehaviourPun {
 
     [Header("Pieces")]
     Piece _heldPiece;
-    [SerializeField] Transform _heldPieceContainer;
     List<GameObject> _nearObjs = new();
+    [SerializeField] Transform _heldPieceContainer;
     [SerializeField] PieceRenderer _ghostPr;
-    Transform _ghostPrContainer;
 
     [Header("Spells")]
     [SerializeField] SpellData _preparedSpell;
     [SerializeField] bool _canCast;
     [SerializeField] int _spellDmg;
     [SerializeField] int _spellAmmo;
-
-    void Awake() {
-        _ghostPrContainer = _ghostPr.transform;
-    }
 
     void Update() {
         HandleGhostPiece();
@@ -66,6 +61,7 @@ public class Player : MonoBehaviourPun {
     }
 
     Coroutine _preparedSpellLifespan;
+    public Action<float> OnUpdateSpellLifeSpan;
     public void PrepareSpell() {
         Vector2Int hoverPoint = GetHoverPoint();
         Block hoverBlock = _playerBoard.SelectPosition(hoverPoint.x, hoverPoint.y);
@@ -90,9 +86,11 @@ public class Player : MonoBehaviourPun {
     // Timer tracking how long Player can use their spell
     public IEnumerator PreparedSpellLifespan() {
         _canCast = true;
-        
-        float endTime = Time.time + 10; // TODO: not hardcode spell lifespan
-        while (Time.time < endTime) {
+
+        float timer = Constants.SpellLifespan; // TODO: not hardcode spell lifespan
+        while (timer > 0) {
+            timer -= Time.deltaTime;
+            OnUpdateSpellLifeSpan.Invoke(timer / Constants.SpellLifespan);
             yield return null;
         }
 

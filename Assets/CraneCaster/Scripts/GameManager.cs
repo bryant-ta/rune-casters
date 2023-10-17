@@ -23,27 +23,6 @@ public class GameManager : MonoBehaviourPun {
 		_playerList.Insert(0, null);
 	}
 
-	// public void UpdatePlayerList() {
-	// 	foreach (Player player in _playerList) {
-	// 		
-	// 	}
-	// 	
-	// 	
-	// 	// can optimize later by keeping all Player objects in scene and enabling + assigning ownership when client joins
-	// 	foreach (GameObject playerObj in GameObject.FindGameObjectsWithTag("Player")) {
-	// 		Player player = playerObj.GetComponent<Player>();
-	// 		if (!_playerList.ContainsKey(player.PlayerId)) {
-	// 			_playerList[player.PlayerId] = player;
-	// 		}
-	// 	}
-	// 	
-	// 	//debug
-	// 	print("PlayerList: ");
-	// 	foreach (var player in _playerList) {
-	// 		print(player.Value.PlayerId);
-	// 	}
-	// }
-
 	[PunRPC]
 	public void EnablePlayerObj(int playerId) {
 		_playerList[playerId].Enable();
