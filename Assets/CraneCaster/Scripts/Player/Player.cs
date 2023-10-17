@@ -91,10 +91,7 @@ public class Player : MonoBehaviourPun {
         float timer = Constants.SpellLifespan; // TODO: not hardcode spell lifespan
         while (timer > 0) {
             timer -= Time.deltaTime;
-            // OnUpdateSpellLifeSpan.Invoke(timer / Constants.SpellLifespan);
-            
-            PhotonHashtable.Hashtable properties = new PhotonHashtable.Hashtable() {{CustomPropertiesLookUp.LookUp[CustomPropertiesKey.SpellLifespan], timer}};
-            PhotonNetwork.PlayerList[PlayerId - 1].SetCustomProperties(properties);
+            OnUpdateSpellLifeSpan.Invoke(timer / Constants.SpellLifespan);
             
             yield return null;
         }
