@@ -25,9 +25,6 @@ public class PlayerUI : MonoBehaviour, IPunObservable {
     void UpdateShieldBar(float percent) {
         //DEBUG
         return;
-        
-        
-        
         _shieldBar.fillAmount = percent;
     }
 

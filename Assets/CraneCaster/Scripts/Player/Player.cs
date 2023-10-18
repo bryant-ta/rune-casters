@@ -45,9 +45,6 @@ public class Player : MonoBehaviourPun {
 
     void Start() {
         _playerHealth.OnUpdateShield += ScaleShield;
-        
-        // DEBUG
-        _playerHealth.ModifyShield(-60);
     }
 
     void Update() {
@@ -167,10 +164,18 @@ public class Player : MonoBehaviourPun {
     
     public void ActivateShield() {
         _isShielding = true;
-        _shieldPivot.SetActive(true);
+        photonView.RPC(nameof(S_ActivateShield), RpcTarget.All);
     }
     public void DeactivateShield() {
         _isShielding = false;
+        photonView.RPC(nameof(S_DeactivateShield), RpcTarget.All);
+    }
+    [PunRPC]
+    public void S_ActivateShield() {
+        _shieldPivot.SetActive(true);
+    }
+    [PunRPC]
+    public void S_DeactivateShield() {
         _shieldPivot.SetActive(false);
     }
 
