@@ -33,8 +33,10 @@ public class PlayerInput : MonoBehaviourPun {
         if (ctx.performed) {
             if (_player.RotatePiece()) {
                 
+            } else if (_player.PrepareSpell()){
+                
             } else {
-                _player.PrepareSpell();
+                _player.Shield();
             }
         }
     }

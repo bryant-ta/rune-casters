@@ -1,13 +1,17 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
 public enum SpellType {
-	
+	Damage = 0,
+	Shield = 1,
+	Speed = 2,
+	Wall = 3,
 }
 
 [Serializable]
-public struct SpellData {
+public struct SpellProjectileData {
 	public int Dmg;
 	public float Speed;
 	public Vector2 MoveDir;
@@ -15,7 +19,7 @@ public struct SpellData {
 	#region Serialization
 
 	public static byte[] Serialize(object input) {
-		var data = (SpellData) input;
+		var data = (SpellProjectileData) input;
         
 		using (MemoryStream stream = new MemoryStream())
 		using (BinaryWriter writer = new BinaryWriter(stream)) {
@@ -29,7 +33,7 @@ public struct SpellData {
 	}
 
 	public static object Deserialize(byte[] data) {
-		SpellData result = new SpellData();
+		SpellProjectileData result = new SpellProjectileData();
 
 		using (MemoryStream stream = new MemoryStream(data))
 		using (BinaryReader reader = new BinaryReader(stream)) {
@@ -45,4 +49,11 @@ public struct SpellData {
 	}
 
 	#endregion
+}
+
+// Used to allow inspector editing of spell color
+[Serializable]
+public struct SpellColor {
+	public SpellType Type;
+	public Color Color;
 }

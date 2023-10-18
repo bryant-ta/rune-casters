@@ -11,7 +11,7 @@ public class NetworkUtils : MonoBehaviour {
         // RegisterType must be in Start (or earlier?), otherwise client issues
         PhotonPeer.RegisterType(typeof(PieceData), 255, PieceData.Serialize, PieceData.Deserialize);
         PhotonPeer.RegisterType(typeof(Block), 254, Block.Serialize, Block.Deserialize); 
-        PhotonPeer.RegisterType(typeof(SpellData), 253, SpellData.Serialize, SpellData.Deserialize); 
+        PhotonPeer.RegisterType(typeof(SpellProjectileData), 253, SpellProjectileData.Serialize, SpellProjectileData.Deserialize); 
     }
 
     /// <summary>

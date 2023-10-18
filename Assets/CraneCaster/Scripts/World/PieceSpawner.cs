@@ -7,8 +7,6 @@ using Random = UnityEngine.Random;
 public class PieceSpawner : MonoBehaviour {
 	[SerializeField] [Tooltip("Spawn every X seconds")] int _spawnRate = 10;
 	[SerializeField] Transform _endPoint;
-	
-	[SerializeField] List<Color> _pieceColors = new();
 
 	float _timer = 99; // DEBUG: start spawning immediately
 	public void Update() {
@@ -39,7 +37,7 @@ public class PieceSpawner : MonoBehaviour {
 
 	PieceData GeneratePieceData() {
 		PieceData pieceData = PieceTypeLookUp.LookUp[Utils.GetRandomEnum<PieceType>()];
-		pieceData.Color = _pieceColors[Random.Range(0, _pieceColors.Count)];
+		pieceData.Color = GameManager.Instance.SpellColors[Random.Range(0, GameManager.Instance.SpellColors.Count)].Color;
 		pieceData.CanRotate = true;
 
 		return pieceData;

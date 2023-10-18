@@ -13,22 +13,25 @@ public class Player : MonoBehaviourPun {
 
     [SerializeField] LayerMask _interactableLayer;
     [SerializeField] Board _playerBoard;
+    PlayerHealth _playerHealth;
 
-    [Header("Pieces")]
-    Piece _heldPiece;
+    [Header("Pieces")] Piece _heldPiece;
     List<GameObject> _nearObjs = new();
     [SerializeField] Transform _heldPieceContainer;
     [SerializeField] PieceRenderer _ghostPr;
 
-    [Header("Spells")]
-    [SerializeField] SpellData _preparedSpell;
+    [Header("Spells")] [SerializeField] SpellProjectileData _preparedSpellProjectile;
     [SerializeField] bool _canCast;
     [SerializeField] int _spellDmg;
     [SerializeField] int _spellAmmo;
 
-    void Update() {
-        HandleGhostPiece();
+    [Header("Shield")] [SerializeField] GameObject _shieldPivot;
+
+    void Awake() {
+        _playerHealth = GetComponent<PlayerHealth>();
     }
+
+    void Update() { HandleGhostPiece(); }
 
     public void Interact() {
         if (_heldPiece == null) {
@@ -43,56 +46,91 @@ public class Player : MonoBehaviourPun {
             _heldPiece.photonView.RPC(nameof(Piece.RotateCW), RpcTarget.All);
             _lastHoverPoint = new Vector2Int(-1, -1); // reset value for HandleGhostPiece
             return true;
-        } 
-        
+        }
+
         return false;
     }
 
     public void Cast() {
         if (!_canCast) return;
-        
+
         // Set spell direction towards mouse
         Vector3 mouseWorldPosition = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
         Vector3 moveDir = (mouseWorldPosition - transform.position).normalized;
-        _preparedSpell.MoveDir = moveDir;
-        
+        _preparedSpellProjectile.MoveDir = moveDir;
+
         Vector2 startPos = moveDir * Constants.SpellInstantiatePosOffset + transform.position; // constant for spell spawn position offset
+
+        Factory.Instance.photonView.RPC(nameof(Factory.S_CreateSpellObj), RpcTarget.AllViaServer, _preparedSpellProjectile, startPos);
+    }
+
+    public bool Shield() {
+        if (_playerHealth.Shield <= 0) return false;
         
-        Factory.Instance.photonView.RPC(nameof(Factory.S_CreateSpellObj), RpcTarget.AllViaServer, _preparedSpell, startPos);
+        Vector3 mouseWorldPosition = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+        Vector3 dir = mouseWorldPosition - transform.position; // direction from the player to the mouse
+
+        // Calculate the angle in degrees between the player and the mouse
+        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+
+        // Rotate shield to face mouse
+        _shieldPivot.transform.localRotation = Quaternion.Euler(new Vector3(0, 0, angle));
+        return true;
     }
 
     Coroutine _preparedSpellLifespan;
     public Action<float> OnUpdateSpellLifeSpan;
-    public void PrepareSpell() {
+    public bool PrepareSpell() {
         Vector2Int hoverPoint = GetHoverPoint();
         Block hoverBlock = _playerBoard.SelectPosition(hoverPoint.x, hoverPoint.y);
-        if (hoverBlock == null || !hoverBlock.IsActive) return; // hovering over nothing
-        
+        if (hoverBlock == null || !hoverBlock.IsActive) return false; // hovering over nothing
+
         List<Block> spellBlocks = _playerBoard.FindColorBlockGroup(hoverPoint.x, hoverPoint.y);
+        Color color = spellBlocks[0].Color;
         int power = spellBlocks.Count;
         print($"Spell Power: {power}");
-        
+
         // TODO: delayed prepare with animation for "charging up"
 
         // Consume blocks part of spell
-        _playerBoard.photonView.RPC(nameof(Board.S_DisableBlocks), RpcTarget.All, (object)spellBlocks.ToArray());
-
-        _preparedSpell = new() {Dmg = power, Speed = power / 2 + 1};
+        _playerBoard.photonView.RPC(nameof(Board.S_DisableBlocks), RpcTarget.All, (object) spellBlocks.ToArray());
         
-        // Start prepared spell lifespan
-        if (_preparedSpellLifespan != null) StopCoroutine(_preparedSpellLifespan);
-        _preparedSpellLifespan = StartCoroutine(PreparedSpellLifespan());
+        // Execute spell
+        // note: replace this with more robust system if expanding spell types
+        SpellType spellType = GameManager.Instance.SpellColorDict[color];
+        switch (spellType) {
+            case SpellType.Damage:
+                _preparedSpellProjectile = new() {Dmg = power, Speed = power / 2 + 1};
+
+                // Start prepared spell lifespan
+                if (_preparedSpellLifespan != null) StopCoroutine(_preparedSpellLifespan);
+                _preparedSpellLifespan = StartCoroutine(PreparedSpellLifespan());
+                break;
+            case SpellType.Shield:
+                _playerHealth.ModifyShield(power);
+
+                break;
+            case SpellType.Speed:
+                break;
+            case SpellType.Wall:
+                break;
+            default:
+                Debug.LogError($"Unable to execute spell: Unexpected SpellType {spellType.ToString()}");
+                return false;
+        }
+
+        return true;
     }
 
     // Timer tracking how long Player can use their spell
-    public IEnumerator PreparedSpellLifespan() {
+    IEnumerator PreparedSpellLifespan() {
         _canCast = true;
 
         float timer = Constants.SpellLifespan; // TODO: not hardcode spell lifespan
         while (timer > 0) {
             timer -= Time.deltaTime;
             OnUpdateSpellLifeSpan.Invoke(timer / Constants.SpellLifespan);
-            
+
             yield return null;
         }
 
@@ -118,7 +156,7 @@ public class Player : MonoBehaviourPun {
             if (_heldPiece.TryGetComponent(out MoveToPoint mtp)) {
                 _heldPiece.photonView.RPC(nameof(MoveToPoint.Disable), RpcTarget.All);
             }
-            
+
             // Setup ghost piece
             _ghostPr.Init(_heldPiece);
 
@@ -127,7 +165,7 @@ public class Player : MonoBehaviourPun {
             _heldPiece.photonView.TransferOwnership(photonView.Owner); // client authoritative - requires Piece Ownership -> Takeover
 
             // Make piece a child object of player
-            GameManager.Instance.photonView.RPC(nameof(NetworkUtils.S_SetTransform), RpcTarget.All, _heldPiece.photonView.ViewID,
+            NetworkManager.Instance.photonView.RPC(nameof(NetworkUtils.S_SetTransform), RpcTarget.All, _heldPiece.photonView.ViewID,
                 _heldPieceContainer.localPosition, Quaternion.identity, photonView.ViewID, false);
         }
     }
@@ -160,11 +198,11 @@ public class Player : MonoBehaviourPun {
             _ghostPr.gameObject.SetActive(false);
             return;
         }
-        
+
         Vector2Int hoverPoint = GetHoverPoint();
         if (_lastHoverPoint == hoverPoint) return;
         _lastHoverPoint = hoverPoint;
-        
+
         // Disable ghost piece if held piece is not over player's board
         if (_playerBoard.ValidatePiece(_heldPiece, hoverPoint.x, hoverPoint.y, _playerBoard.IsInBounds)) {
             _ghostPr.gameObject.SetActive(true);
@@ -172,10 +210,10 @@ public class Player : MonoBehaviourPun {
             _ghostPr.gameObject.SetActive(false);
             return;
         }
-        
+
         // Move ghost piece object to grid snap pos
         _ghostPr.transform.localPosition = new Vector3(hoverPoint.x, hoverPoint.y, 0);
-        
+
         // Change ghost piece visual when placement would overlap an existing piece
         // TODO: Add texture on ghost piece if invalid placement
         if (_playerBoard.ValidatePiece(_heldPiece, hoverPoint.x, hoverPoint.y, _playerBoard.IsValidPlacement)) {

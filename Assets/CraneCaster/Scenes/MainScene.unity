@@ -1342,6 +1342,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1734824074}
+  - component: {fileID: 1734824080}
   - component: {fileID: 1734824078}
   - component: {fileID: 1734824075}
   - component: {fileID: 1734824077}
@@ -1435,6 +1436,27 @@ MonoBehaviour:
   sceneViewId: 1
   InstantiationId: 0
   isRuntimeInstantiated: 0
+--- !u!114 &1734824080
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1734824073}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3d66fc148ad67f4c80f64b1ecf0307b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SpellColors:
+  - Type: 0
+    Color: {r: 0.7843138, g: 0.1137255, b: 0.14509805, a: 1}
+  - Type: 1
+    Color: {r: 0.87843144, g: 0.79215693, b: 0.23529413, a: 1}
+  - Type: 2
+    Color: {r: 0.09019608, g: 0.74509805, b: 0.73333335, a: 1}
+  - Type: 3
+    Color: {r: 0.60784316, g: 0.3647059, b: 0.8980393, a: 1}
 --- !u!114 &1800332713 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1040271891258225583, guid: 089123c56d4df5643b562b091f2a6a68, type: 3}

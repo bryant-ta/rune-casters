@@ -1,17 +1,13 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using Photon.Pun;
 using UnityEngine;
 
-public class GameManager : MonoBehaviourPun {
+public class GameManager : MonoBehaviour {
 	public static GameManager Instance { get; private set; }
 
-	public List<Player> PlayerList => _playerList.ToList();
-	[SerializeField] List<Player> _playerList = new(); // players registered when client joins, see PlayerSpawner
-
-	[SerializeField] bool _canStart;
-
+	public List<SpellColor> SpellColors = new(); // Builds into SpellColorDict at runtime
+	public Dictionary<Color, SpellType> SpellColorDict = new();
+	
 	void Awake() {
 		if (Instance != null && Instance != this) {
 			Destroy(gameObject);
@@ -19,22 +15,9 @@ public class GameManager : MonoBehaviourPun {
 			Instance = this;
 		}
 		
-		// IMPORTANT: this aligns game's PlayerID with Photon's ActorID, so we don't have to do ActorID - 1 everywhere
-		_playerList.Insert(0, null);
-	}
-
-	[PunRPC]
-	public void EnablePlayerObj(int playerId) {
-		_playerList[playerId].Enable();
-	}
-	[PunRPC]
-	public void DisablePlayerObj(int playerId) {
-		_playerList[playerId].Disable();
-	}
-	
-	// TODO: implement call to unregister when player disconnects
-	public void UnregisterPlayer(Player player) {
-		// possibly dont need to register if "!_playerList.Contains(player)" works in RegisterPlayer
-		// must keep each player index constant
+		// Build SpellColorDict
+		foreach (SpellColor spellColor in SpellColors) {
+			SpellColorDict[spellColor.Color] = spellColor.Type;
+		}
 	}
 }

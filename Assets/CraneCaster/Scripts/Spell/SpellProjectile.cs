@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Spell : MonoBehaviour {
+public class SpellProjectile : MonoBehaviour {
     public int Dmg => _dmg;
     [SerializeField] int _dmg;
 
@@ -15,10 +15,10 @@ public class Spell : MonoBehaviour {
         Destroy(gameObject, 10.0f);
     }
 
-    public void Init(SpellData spellData, float lag) {
-        _dmg = spellData.Dmg;
-        _speed = spellData.Speed;
-        _moveDir = spellData.MoveDir;
+    public void Init(SpellProjectileData spellProjectileData, float lag) {
+        _dmg = spellProjectileData.Dmg;
+        _speed = spellProjectileData.Speed;
+        _moveDir = spellProjectileData.MoveDir;
 
         transform.Translate(Vector3.up * _speed * lag);
     }
