@@ -99,7 +99,6 @@ public class PlayerHealth : MonoBehaviourPunCallbacks {
 
     public void OnTriggerEnter2D(Collider2D col) {
         if (!PhotonNetwork.IsMasterClient) return;
-        print("root");
 
         if (col.gameObject.CompareTag(TagsLookUp.LookUp[Tags.Spell])) {
             SpellProjectile spellProjectile = col.gameObject.GetComponent<SpellProjectile>();

@@ -154,6 +154,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _hpBar: {fileID: 0}
   _shieldBar: {fileID: 0}
+  _speedbar: {fileID: 0}
   _spellLifespanBar: {fileID: 0}
 --- !u!114 &3588719353585691130
 MonoBehaviour:
@@ -544,7 +545,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &7579005275616733752
 Transform:
   m_ObjectHideFlags: 0

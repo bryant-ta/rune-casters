@@ -13,8 +13,10 @@ public class Player : MonoBehaviourPun {
 
     [SerializeField] LayerMask _interactableLayer;
     [SerializeField] Board _playerBoard;
-    PlayerHealth _playerHealth;
     Camera _mainCamera;
+
+    PlayerMovement _playerMovement;
+    PlayerHealth _playerHealth;
 
     [Header("Pieces")] 
     
@@ -36,8 +38,10 @@ public class Player : MonoBehaviourPun {
     Transform _shieldTransform;
 
     void Awake() {
-        _playerHealth = GetComponent<PlayerHealth>();
         _mainCamera = Camera.main;
+        
+        _playerMovement = GetComponent<PlayerMovement>();
+        _playerHealth = GetComponent<PlayerHealth>();
 
         _shieldTransform = _shieldPivot.transform.GetChild(0);
         _fullShieldScale = _shieldTransform.localScale.x;
@@ -71,7 +75,7 @@ public class Player : MonoBehaviourPun {
     }
 
     Coroutine _preparedSpellLifespan;
-    public Action<float> OnUpdateSpellLifeSpan;
+    public Action<float> OnUpdateSpellDuration;
     public bool PrepareSpell() {
         Vector2Int hoverPoint = GetHoverPoint();
         Block hoverBlock = _playerBoard.SelectPosition(hoverPoint.x, hoverPoint.y);
@@ -96,13 +100,14 @@ public class Player : MonoBehaviourPun {
 
                 // Start prepared spell lifespan
                 if (_preparedSpellLifespan != null) StopCoroutine(_preparedSpellLifespan);
-                _preparedSpellLifespan = StartCoroutine(PreparedSpellLifespan());
+                _preparedSpellLifespan = StartCoroutine(PreparedSpellTimer());
 
                 break;
             case SpellType.Shield:
                 _playerHealth.ModifyShield(power);
                 break;
             case SpellType.Speed:
+                _playerMovement.MultiplySpeedForDuration(1f + (float)power / 30, Constants.SpellDuration);
                 break;
             case SpellType.Wall:
                 break;
@@ -115,13 +120,13 @@ public class Player : MonoBehaviourPun {
     }
 
     // Timer tracking how long Player can use their spell
-    IEnumerator PreparedSpellLifespan() {
+    IEnumerator PreparedSpellTimer() {
         _canCast = true;
 
-        float timer = Constants.SpellLifespan; // TODO: not hardcode spell lifespan
+        float timer = Constants.SpellDuration;
         while (timer > 0) {
             timer -= Time.deltaTime;
-            OnUpdateSpellLifeSpan.Invoke(timer / Constants.SpellLifespan);
+            OnUpdateSpellDuration.Invoke(timer / Constants.SpellDuration);
 
             yield return null;
         }
