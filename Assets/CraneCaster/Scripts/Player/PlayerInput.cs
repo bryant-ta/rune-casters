@@ -1,3 +1,4 @@
+using System;
 using Photon.Pun;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -29,18 +30,22 @@ public class PlayerInput : MonoBehaviourPun {
     
     public void OnSecondary(InputAction.CallbackContext ctx) {
         if (!photonView.IsMine) return;
-
+        
         if (ctx.performed) {
             if (_player.RotatePiece()) {
                 
             } else if (_player.PrepareSpell()){
                 
             } else {
-                _player.Shield();
+                _player.ActivateShield();
             }
         }
+        
+        if (ctx.canceled) {
+            _player.DeactivateShield();
+        }
     }
-    
+
     public void OnCast(InputAction.CallbackContext ctx) {
         if (!photonView.IsMine) return;
 

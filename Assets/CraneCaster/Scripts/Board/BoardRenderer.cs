@@ -16,6 +16,7 @@ public class BoardRenderer : MonoBehaviour {
 
 			if (blockObj.TryGetComponent(out SpriteRenderer sr)) {
 				_blockSprites[block] = blockObj.GetComponent<SpriteRenderer>();
+				sr.sortingOrder = -9;
 			} else {
 				Debug.LogError("Expected SpriteRender on Block base object");
 			}

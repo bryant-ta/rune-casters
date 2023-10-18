@@ -14,24 +14,46 @@ public class Player : MonoBehaviourPun {
     [SerializeField] LayerMask _interactableLayer;
     [SerializeField] Board _playerBoard;
     PlayerHealth _playerHealth;
+    Camera _mainCamera;
 
-    [Header("Pieces")] Piece _heldPiece;
+    [Header("Pieces")] 
+    
+    Piece _heldPiece;
     List<GameObject> _nearObjs = new();
     [SerializeField] Transform _heldPieceContainer;
     [SerializeField] PieceRenderer _ghostPr;
 
-    [Header("Spells")] [SerializeField] SpellProjectileData _preparedSpellProjectile;
+    [Header("Spells")] 
+    
+    [SerializeField] SpellProjectileData _preparedSpellProjectile;
     [SerializeField] bool _canCast;
     [SerializeField] int _spellDmg;
     [SerializeField] int _spellAmmo;
 
-    [Header("Shield")] [SerializeField] GameObject _shieldPivot;
+    [Header("Shield")]
+    
+    [SerializeField] GameObject _shieldPivot;
+    Transform _shieldTransform;
 
     void Awake() {
         _playerHealth = GetComponent<PlayerHealth>();
+        _mainCamera = Camera.main;
+
+        _shieldTransform = _shieldPivot.transform.GetChild(0);
+        _fullShieldScale = _shieldTransform.localScale.x;
     }
 
-    void Update() { HandleGhostPiece(); }
+    void Start() {
+        _playerHealth.OnUpdateShield += ScaleShield;
+        
+        // DEBUG
+        _playerHealth.ModifyShield(-60);
+    }
+
+    void Update() {
+        HandleGhostPiece();
+        HandleShield();
+    }
 
     public void Interact() {
         if (_heldPiece == null) {
@@ -51,33 +73,6 @@ public class Player : MonoBehaviourPun {
         return false;
     }
 
-    public void Cast() {
-        if (!_canCast) return;
-
-        // Set spell direction towards mouse
-        Vector3 mouseWorldPosition = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
-        Vector3 moveDir = (mouseWorldPosition - transform.position).normalized;
-        _preparedSpellProjectile.MoveDir = moveDir;
-
-        Vector2 startPos = moveDir * Constants.SpellInstantiatePosOffset + transform.position; // constant for spell spawn position offset
-
-        Factory.Instance.photonView.RPC(nameof(Factory.S_CreateSpellObj), RpcTarget.AllViaServer, _preparedSpellProjectile, startPos);
-    }
-
-    public bool Shield() {
-        if (_playerHealth.Shield <= 0) return false;
-        
-        Vector3 mouseWorldPosition = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
-        Vector3 dir = mouseWorldPosition - transform.position; // direction from the player to the mouse
-
-        // Calculate the angle in degrees between the player and the mouse
-        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
-
-        // Rotate shield to face mouse
-        _shieldPivot.transform.localRotation = Quaternion.Euler(new Vector3(0, 0, angle));
-        return true;
-    }
-
     Coroutine _preparedSpellLifespan;
     public Action<float> OnUpdateSpellLifeSpan;
     public bool PrepareSpell() {
@@ -94,7 +89,7 @@ public class Player : MonoBehaviourPun {
 
         // Consume blocks part of spell
         _playerBoard.photonView.RPC(nameof(Board.S_DisableBlocks), RpcTarget.All, (object) spellBlocks.ToArray());
-        
+
         // Execute spell
         // note: replace this with more robust system if expanding spell types
         SpellType spellType = GameManager.Instance.SpellColorDict[color];
@@ -105,10 +100,10 @@ public class Player : MonoBehaviourPun {
                 // Start prepared spell lifespan
                 if (_preparedSpellLifespan != null) StopCoroutine(_preparedSpellLifespan);
                 _preparedSpellLifespan = StartCoroutine(PreparedSpellLifespan());
+
                 break;
             case SpellType.Shield:
                 _playerHealth.ModifyShield(power);
-
                 break;
             case SpellType.Speed:
                 break;
@@ -136,6 +131,52 @@ public class Player : MonoBehaviourPun {
 
         _canCast = false;
     }
+
+    public void Cast() {
+        if (!_canCast) return;
+
+        // Set spell direction towards mouse
+        Vector3 mouseWorldPosition = _mainCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+        Vector3 moveDir = (mouseWorldPosition - transform.position).normalized;
+        _preparedSpellProjectile.MoveDir = moveDir;
+
+        Vector2 startPos = moveDir * Constants.SpellInstantiatePosOffset + transform.position; // constant for spell spawn position offset
+
+        Factory.Instance.photonView.RPC(nameof(Factory.S_CreateSpellObj), RpcTarget.AllViaServer, _preparedSpellProjectile, startPos);
+    }
+
+    #region Shield
+
+    bool _isShielding;
+    void HandleShield() {
+        if (!_isShielding || _playerHealth.Shield <= 0) return;
+
+        Vector3 mouseWorldPosition = _mainCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+        Vector3 dir = mouseWorldPosition - transform.position; // direction from the player to the mouse
+
+        // Calculate the angle in degrees between the player and the mouse, rotate shield to face mouse
+        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+        _shieldPivot.transform.localRotation = Quaternion.Euler(new Vector3(0, 0, angle));
+    }
+
+    float _fullShieldScale;
+    void ScaleShield(float shieldPercent) {
+        float size = shieldPercent * _fullShieldScale;
+        _shieldTransform.localScale = new Vector3(size, _shieldTransform.localScale.y, _shieldTransform.localScale.z);
+    }
+    
+    public void ActivateShield() {
+        _isShielding = true;
+        _shieldPivot.SetActive(true);
+    }
+    public void DeactivateShield() {
+        _isShielding = false;
+        _shieldPivot.SetActive(false);
+    }
+
+    #endregion
+
+    #region Piece
 
     void PickUp() {
         if (_nearObjs.Count == 0) return;
@@ -234,6 +275,10 @@ public class Player : MonoBehaviourPun {
         }
     }
 
+    #endregion
+
+    #region Helper
+
     public void Enable() {
         _playerBoard.gameObject.SetActive(true);
         enabled = true;
@@ -247,4 +292,6 @@ public class Player : MonoBehaviourPun {
         // localPosition works when Player is child of Board and centered at origin
         return new Vector2Int(Mathf.RoundToInt(transform.localPosition.x), Mathf.RoundToInt(transform.localPosition.y));
     }
+
+    #endregion
 }
