@@ -28,9 +28,7 @@ public class Player : MonoBehaviourPun {
     [Header("Spells")] 
     
     [SerializeField] SpellProjectileData _preparedSpellProjectile;
-    [SerializeField] bool _canCast;
-    [SerializeField] int _spellDmg;
-    [SerializeField] int _spellAmmo;
+    bool _canCast;
 
     [Header("Shield")]
     
@@ -135,7 +133,7 @@ public class Player : MonoBehaviourPun {
     }
 
     public void Cast() {
-        if (!_canCast) return;
+        if (!_canCast || _isShielding) return;
 
         // Set spell direction towards mouse
         Vector3 mouseWorldPosition = _mainCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue());
