@@ -4,7 +4,7 @@ using UnityEngine;
 public static class Constants {
     // Debug Values
     public const float PieceShrinkFactor = 0.5f;
-    public const float SpellInstantiatePosOffset = 3.5f;
+    public const float SpellInstantiatePosOffset = 2.5f;
     public const float SpellDuration = 10f; // TODO: not hardcode spell lifespan
     
     // Paths
@@ -28,13 +28,17 @@ public static class CustomPropertiesLookUp {
 /***************************    Tags    ***************************/
 
 public enum Tags {
+    Player,
     Pickup,
     Spell,
+    Wall,
 }
 
 public static class TagsLookUp {
     public static Dictionary<Tags, string> LookUp = new() {
+        { Tags.Player, "Player" },
         { Tags.Pickup, "Pickup" },
         { Tags.Spell, "Spell" },
+        { Tags.Wall, "Wall" },
     };
 }

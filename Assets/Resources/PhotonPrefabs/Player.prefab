@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1069461258500976326}
+  - component: {fileID: -2775332642818205448}
   - component: {fileID: 695737292654742424}
   - component: {fileID: 1069461258500976327}
   - component: {fileID: 4883813108509202539}
@@ -18,7 +19,6 @@ GameObject:
   - component: {fileID: 3588719353585691130}
   - component: {fileID: 3555557013316209614}
   - component: {fileID: 3433150683863589864}
-  - component: {fileID: 5199122942598211401}
   - component: {fileID: 8453513228205725355}
   m_Layer: 0
   m_Name: Player
@@ -45,6 +45,22 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!58 &-2775332642818205448
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1069461258500976345}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  serializedVersion: 2
+  m_Radius: 0.45
 --- !u!58 &695737292654742424
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -105,10 +121,8 @@ MonoBehaviour:
     Dmg: 0
     Speed: 0
     MoveDir: {x: 0, y: 0}
-  _canCast: 0
-  _spellDmg: 0
-  _spellAmmo: 0
   _shieldPivot: {fileID: 3222220254375758783}
+  _wallPrefab: {fileID: 380235596971820803, guid: a118026c8c4fdbd43951d8908ee24e5f, type: 3}
 --- !u!114 &-660007608926237771
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -121,7 +135,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35da621b6331c184ab0117eb2ff86e66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _maxSpeed: 15
+  _maxSpeed: 10
   _maxAcceleration: 80
   moveInput: {x: 0, y: 0}
 --- !u!114 &-5279473841808718174
@@ -326,46 +340,11 @@ MonoBehaviour:
   observableSearch: 2
   ObservedComponents:
   - {fileID: -1953885343956121856}
-  - {fileID: 5199122942598211401}
   - {fileID: 8453513228205725355}
   - {fileID: 8070645989227388634}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
---- !u!114 &5199122942598211401
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1069461258500976345}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8efc6b1d64977384eb3405357896c656, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_PositionModel:
-    SynchronizeEnabled: 1
-    TeleportEnabled: 1
-    TeleportIfDistanceGreaterThan: 3
-    InterpolateOption: 2
-    InterpolateMoveTowardsSpeed: 15
-    InterpolateLerpSpeed: 1
-    ExtrapolateOption: 0
-    ExtrapolateSpeed: 15
-    ExtrapolateIncludingRoundTripTime: 1
-    ExtrapolateNumberOfStoredPositions: 1
-  m_RotationModel:
-    SynchronizeEnabled: 0
-    InterpolateOption: 1
-    InterpolateRotateTowardsSpeed: 180
-    InterpolateLerpSpeed: 5
-  m_ScaleModel:
-    SynchronizeEnabled: 0
-    InterpolateOption: 0
-    InterpolateMoveTowardsSpeed: 1
-    InterpolateLerpSpeed: 0
-  _photonViewObjTransform: {fileID: 0}
 --- !u!114 &8453513228205725355
 MonoBehaviour:
   m_ObjectHideFlags: 0

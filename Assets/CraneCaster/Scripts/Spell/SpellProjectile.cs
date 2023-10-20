@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class SpellProjectile : MonoBehaviour {
@@ -30,5 +31,9 @@ public class SpellProjectile : MonoBehaviour {
         transform.Translate(_moveDir * _speed * Time.deltaTime);
     }
 
-    public void OnTriggerEnter2D(Collider2D col) { Destroy(gameObject); }
+    public void OnTriggerEnter2D(Collider2D col) {
+        if (col.CompareTag(TagsLookUp.LookUp[Tags.Wall]) || col.CompareTag(TagsLookUp.LookUp[Tags.Player])) {
+            Destroy(gameObject);
+        }
+    }
 }

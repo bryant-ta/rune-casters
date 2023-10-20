@@ -52,6 +52,7 @@ MonoBehaviour:
   - S_SetScale
   - S_ActivateShield
   - S_DeactivateShield
+  - S_CreateWall
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

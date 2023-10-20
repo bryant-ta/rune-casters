@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Spell
   - Pickup
+  - Wall
   layers:
   - Default
   - TransparentFX

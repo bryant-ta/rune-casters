@@ -29,9 +29,7 @@ public class PieceSpawner : MonoBehaviour {
 			mtp.OnReachedEnd += CleanUpPiece;
 		}
 
-		// TEMP: replace with drawn mini version of pieces?
-		// Vector3 scale = piece.transform.localScale * 0.5f;
-		// GameManager.Instance.photonView.RPC(nameof(NetworkUtils.S_SetScale), RpcTarget.All, piece.photonView.ViewID, scale);
+		// TEMP: TODO: replace with drawn mini version of pieces
 		piece.transform.localScale *= Constants.PieceShrinkFactor; // synced by PhotonTransformViewClassic
 	}
 

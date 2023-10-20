@@ -2,10 +2,14 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using Photon.Pun;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using PhotonHashtable = ExitGames.Client.Photon;
+using Quaternion = UnityEngine.Quaternion;
+using Vector2 = UnityEngine.Vector2;
+using Vector3 = UnityEngine.Vector3;
 
 [RequireComponent(typeof(PlayerInput))]
 public class Player : MonoBehaviourPun {
@@ -28,12 +32,17 @@ public class Player : MonoBehaviourPun {
     [Header("Spells")] 
     
     [SerializeField] SpellProjectileData _preparedSpellProjectile;
-    bool _canCast;
+    float _wallSpellScale;
+    bool _canCastDamageSpell;
 
     [Header("Shield")]
     
     [SerializeField] GameObject _shieldPivot;
     Transform _shieldTransform;
+
+    [Header("Wall")]
+
+    [SerializeField] GameObject _wallPrefab;
 
     void Awake() {
         _mainCamera = Camera.main;
@@ -108,6 +117,7 @@ public class Player : MonoBehaviourPun {
                 _playerMovement.MultiplySpeedForDuration(1f + (float)power / 30, Constants.SpellDuration);
                 break;
             case SpellType.Wall:
+                _wallSpellScale = 1 + power / 2f;
                 break;
             default:
                 Debug.LogError($"Unable to execute spell: Unexpected SpellType {spellType.ToString()}");
@@ -119,7 +129,7 @@ public class Player : MonoBehaviourPun {
 
     // Timer tracking how long Player can use their spell
     IEnumerator PreparedSpellTimer() {
-        _canCast = true;
+        _canCastDamageSpell = true;
 
         float timer = Constants.SpellDuration;
         while (timer > 0) {
@@ -129,18 +139,27 @@ public class Player : MonoBehaviourPun {
             yield return null;
         }
 
-        _canCast = false;
+        _canCastDamageSpell = false;
     }
 
     public void Cast() {
-        if (!_canCast || _isShielding) return;
+        if (_isShielding) return;
 
         // Set spell direction towards mouse
         Vector3 mouseWorldPosition = _mainCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue());
-        Vector3 moveDir = (mouseWorldPosition - transform.position).normalized;
-        _preparedSpellProjectile.MoveDir = moveDir;
+        mouseWorldPosition.z = transform.position.z;
+        Vector3 dir = (mouseWorldPosition - transform.position).normalized;
 
-        Vector2 startPos = moveDir * Constants.SpellInstantiatePosOffset + transform.position; // constant for spell spawn position offset
+        if (_wallSpellScale > 0) { // cast wall spell this Cast, if available
+            CreateWall(dir, _wallSpellScale);
+            _wallSpellScale = 0;
+            return;
+        }
+
+        if (!_canCastDamageSpell) return;
+
+        _preparedSpellProjectile.MoveDir = dir;
+        Vector2 startPos = dir * Constants.SpellInstantiatePosOffset + transform.position; // constant for spell spawn position offset
 
         Factory.Instance.photonView.RPC(nameof(Factory.S_CreateSpellObj), RpcTarget.AllViaServer, _preparedSpellProjectile, startPos);
     }
@@ -182,6 +201,29 @@ public class Player : MonoBehaviourPun {
         _shieldPivot.SetActive(false);
     }
 
+    #endregion
+    
+    #region Wall
+    
+    public void CreateWall(Vector3 dir, float scaleFactor) {
+        Vector3 pos = transform.position + (dir * Constants.SpellInstantiatePosOffset);
+        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg; // Rotate to dir
+        Vector3 rot = new Vector3(0, 0, angle);
+        photonView.RPC(nameof(S_CreateWall), RpcTarget.All, pos, rot, scaleFactor);
+    }
+
+    [PunRPC]
+    public void S_CreateWall(Vector3 position, Vector3 rotation, float scaleFactor) {
+        // Create wall base object
+        Transform wallPivotObj = Instantiate(_wallPrefab, position, Quaternion.Euler(rotation)).transform;
+        
+        // Scale wall outwards, keeping close edge in same place
+        Transform wallObj = wallPivotObj.GetChild(0);                                             // should be wall's collider/sprite object
+        float newPositionX = wallObj.localScale.x / 2.0f * scaleFactor + wallObj.localPosition.x; // calculation for obj offset after scale
+        wallObj.localPosition = new Vector3(newPositionX, wallObj.localPosition.y, wallObj.localPosition.z);
+        wallObj.localScale = new Vector3(wallObj.localScale.x * scaleFactor, wallObj.localScale.y, wallObj.localScale.z);
+    }
+    
     #endregion
 
     #region Piece
