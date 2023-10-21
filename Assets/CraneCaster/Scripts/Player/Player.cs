@@ -2,14 +2,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using Photon.Pun;
+using Timers;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using PhotonHashtable = ExitGames.Client.Photon;
-using Quaternion = UnityEngine.Quaternion;
-using Vector2 = UnityEngine.Vector2;
-using Vector3 = UnityEngine.Vector3;
 
 [RequireComponent(typeof(PlayerInput))]
 public class Player : MonoBehaviourPun {
@@ -22,52 +19,57 @@ public class Player : MonoBehaviourPun {
     PlayerMovement _playerMovement;
     PlayerHealth _playerHealth;
 
-    [Header("Pieces")] 
-    
+    [Header("Pieces")]
     Piece _heldPiece;
+
     List<GameObject> _nearObjs = new();
     [SerializeField] Transform _heldPieceContainer;
     [SerializeField] PieceRenderer _ghostPr;
 
-    [Header("Spells")] 
-    
+    [Header("Punching")]
+    CountdownTimer _punchCooldown;
+
+    [Header("Spells")]
     [SerializeField] SpellProjectileData _preparedSpellProjectile;
+
+    public CountdownTimer SpellUseableTimer { get; private set; }
     float _wallSpellScale;
-    bool _canCastDamageSpell;
 
     [Header("Shield")]
-    
     [SerializeField] GameObject _shieldPivot;
+
     Transform _shieldTransform;
 
     [Header("Wall")]
-
     [SerializeField] GameObject _wallPrefab;
 
     void Awake() {
         _mainCamera = Camera.main;
-        
+
         _playerMovement = GetComponent<PlayerMovement>();
         _playerHealth = GetComponent<PlayerHealth>();
 
         _shieldTransform = _shieldPivot.transform.GetChild(0);
         _fullShieldScale = _shieldTransform.localScale.x;
+
+        _punchCooldown = new CountdownTimer(2f);
+        SpellUseableTimer = new CountdownTimer(Constants.SpellDuration);
     }
 
-    void Start() {
-        _playerHealth.OnUpdateShield += ScaleShield;
-    }
+    void Start() { _playerHealth.OnUpdateShield += ScaleShield; }
 
     void Update() {
         HandleGhostPiece();
         HandleShield();
     }
 
-    public void Interact() {
+    #region Piece
+
+    public bool Interact() {
         if (_heldPiece == null) {
-            PickUp();
+            return PickUp();
         } else {
-            Drop();
+            return Drop();
         }
     }
 
@@ -81,155 +83,8 @@ public class Player : MonoBehaviourPun {
         return false;
     }
 
-    Coroutine _preparedSpellLifespan;
-    public Action<float> OnUpdateSpellDuration;
-    public bool PrepareSpell() {
-        Vector2Int hoverPoint = GetHoverPoint();
-        Block hoverBlock = _playerBoard.SelectPosition(hoverPoint.x, hoverPoint.y);
-        if (hoverBlock == null || !hoverBlock.IsActive) return false; // hovering over nothing
-
-        List<Block> spellBlocks = _playerBoard.FindColorBlockGroup(hoverPoint.x, hoverPoint.y);
-        Color color = spellBlocks[0].Color;
-        int power = spellBlocks.Count;
-        print($"Spell Power: {power}");
-
-        // TODO: delayed prepare with animation for "charging up"
-
-        // Consume blocks part of spell
-        _playerBoard.photonView.RPC(nameof(Board.S_DisableBlocks), RpcTarget.All, (object) spellBlocks.ToArray());
-
-        // Execute spell
-        // note: replace this with more robust system if expanding spell types
-        SpellType spellType = GameManager.Instance.SpellColorDict[color];
-        switch (spellType) {
-            case SpellType.Damage:
-                _preparedSpellProjectile = new() {Dmg = power, Speed = power / 2 + 1};
-
-                // Start prepared spell lifespan
-                if (_preparedSpellLifespan != null) StopCoroutine(_preparedSpellLifespan);
-                _preparedSpellLifespan = StartCoroutine(PreparedSpellTimer());
-
-                break;
-            case SpellType.Shield:
-                _playerHealth.ModifyShield(power);
-                break;
-            case SpellType.Speed:
-                _playerMovement.MultiplySpeedForDuration(1f + (float)power / 30, Constants.SpellDuration);
-                break;
-            case SpellType.Wall:
-                _wallSpellScale = 1 + power / 4f;
-                break;
-            default:
-                Debug.LogError($"Unable to execute spell: Unexpected SpellType {spellType.ToString()}");
-                return false;
-        }
-
-        return true;
-    }
-
-    // Timer tracking how long Player can use their spell
-    IEnumerator PreparedSpellTimer() {
-        _canCastDamageSpell = true;
-
-        float timer = Constants.SpellDuration;
-        while (timer > 0) {
-            timer -= Time.deltaTime;
-            OnUpdateSpellDuration.Invoke(timer / Constants.SpellDuration);
-
-            yield return null;
-        }
-
-        _canCastDamageSpell = false;
-    }
-
-    public void Cast() {
-        if (_isShielding) return;
-
-        // Set spell direction towards mouse
-        Vector3 mouseWorldPosition = _mainCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue());
-        mouseWorldPosition.z = transform.position.z;
-        Vector3 dir = (mouseWorldPosition - transform.position).normalized;
-
-        if (_wallSpellScale > 0) { // cast wall spell this Cast, if available
-            CreateWall(dir, _wallSpellScale);
-            _wallSpellScale = 0;
-            return;
-        }
-
-        if (!_canCastDamageSpell) return;
-
-        _preparedSpellProjectile.MoveDir = dir;
-        Vector2 startPos = dir * Constants.SpellInstantiatePosOffset + transform.position; // constant for spell spawn position offset
-
-        Factory.Instance.photonView.RPC(nameof(Factory.S_CreateSpellObj), RpcTarget.AllViaServer, _preparedSpellProjectile, startPos);
-    }
-
-    #region Shield
-
-    bool _isShielding;
-    void HandleShield() {
-        if (!_isShielding || _playerHealth.Shield <= 0) return;
-
-        Vector3 mouseWorldPosition = _mainCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue());
-        Vector3 dir = mouseWorldPosition - transform.position; // direction from the player to the mouse
-
-        // Calculate the angle in degrees between the player and the mouse, rotate shield to face mouse
-        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
-        _shieldPivot.transform.localRotation = Quaternion.Euler(new Vector3(0, 0, angle));
-    }
-
-    float _fullShieldScale;
-    void ScaleShield(float shieldPercent) {
-        float size = shieldPercent * _fullShieldScale;
-        _shieldTransform.localScale = new Vector3(size, _shieldTransform.localScale.y, _shieldTransform.localScale.z);
-    }
-    
-    public void ActivateShield() {
-        _isShielding = true;
-        photonView.RPC(nameof(S_ActivateShield), RpcTarget.All);
-    }
-    public void DeactivateShield() {
-        _isShielding = false;
-        photonView.RPC(nameof(S_DeactivateShield), RpcTarget.All);
-    }
-    [PunRPC]
-    public void S_ActivateShield() {
-        _shieldPivot.SetActive(true);
-    }
-    [PunRPC]
-    public void S_DeactivateShield() {
-        _shieldPivot.SetActive(false);
-    }
-
-    #endregion
-    
-    #region Wall
-    
-    public void CreateWall(Vector3 dir, float scaleFactor) {
-        Vector3 pos = transform.position + (dir * Constants.SpellInstantiatePosOffset);
-        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg; // Rotate to dir
-        Vector3 rot = new Vector3(0, 0, angle);
-        photonView.RPC(nameof(S_CreateWall), RpcTarget.All, pos, rot, scaleFactor);
-    }
-
-    [PunRPC]
-    public void S_CreateWall(Vector3 position, Vector3 rotation, float scaleFactor) {
-        // Create wall base object
-        Transform wallPivotObj = Instantiate(_wallPrefab, position, Quaternion.Euler(rotation)).transform;
-        
-        // Scale wall outwards, keeping close edge in same place
-        Transform wallObj = wallPivotObj.GetChild(0);                                             // should be wall's collider/sprite object
-        float newPositionX = wallObj.localScale.x / 2.0f * scaleFactor + wallObj.localPosition.x; // calculation for obj offset after scale
-        wallObj.localPosition = new Vector3(newPositionX, wallObj.localPosition.y, wallObj.localPosition.z);
-        wallObj.localScale = new Vector3(wallObj.localScale.x * scaleFactor, wallObj.localScale.y, wallObj.localScale.z);
-    }
-    
-    #endregion
-
-    #region Piece
-
-    void PickUp() {
-        if (_nearObjs.Count == 0) return;
+    bool PickUp() {
+        if (_nearObjs.Count == 0) return false;
 
         // Find nearest piece
         float minDistance = int.MaxValue;
@@ -241,34 +96,36 @@ public class Player : MonoBehaviourPun {
             }
         }
 
+        if (!_heldPiece) return false;
+
         // Pickup piece
-        if (_heldPiece) {
-            // Disable held piece's self movement
-            if (_heldPiece.TryGetComponent(out MoveToPoint mtp)) {
-                _heldPiece.photonView.RPC(nameof(MoveToPoint.Disable), RpcTarget.All);
-            }
-
-            // Setup ghost piece
-            _ghostPr.Init(_heldPiece);
-
-            // Take ownership of held piece
-            // _heldPiece.photonView.RequestOwnership(); // server authoritative - requires Piece Ownership -> Request
-            _heldPiece.photonView.TransferOwnership(photonView.Owner); // client authoritative - requires Piece Ownership -> Takeover
-
-            // Make piece a child object of player
-            NetworkManager.Instance.photonView.RPC(nameof(NetworkUtils.S_SetTransform), RpcTarget.All, _heldPiece.photonView.ViewID,
-                _heldPieceContainer.localPosition, Quaternion.identity, photonView.ViewID, false);
+        // Disable held piece's self movement
+        if (_heldPiece.TryGetComponent(out MoveToPoint mtp)) {
+            _heldPiece.photonView.RPC(nameof(MoveToPoint.Disable), RpcTarget.All);
         }
+
+        // Setup ghost piece
+        _ghostPr.Init(_heldPiece);
+
+        // Take ownership of held piece
+        // _heldPiece.photonView.RequestOwnership(); // server authoritative - requires Piece Ownership -> Request
+        _heldPiece.photonView.TransferOwnership(photonView.Owner); // client authoritative - requires Piece Ownership -> Takeover
+
+        // Make piece a child object of player
+        NetworkManager.Instance.photonView.RPC(nameof(NetworkUtils.S_SetTransform), RpcTarget.All, _heldPiece.photonView.ViewID,
+            _heldPieceContainer.localPosition, Quaternion.identity, photonView.ViewID, false);
+        
+        return true;
     }
 
-    void Drop() {
-        if (_heldPiece == null) return;
+    bool Drop() {
+        if (_heldPiece == null) return false;
 
         Vector2Int hoverPoint = GetHeldPiececHoverPoint();
 
         if (_playerBoard.PlacePiece(_heldPiece, hoverPoint.x, hoverPoint.y)) {
             _heldPiece = null;
-            return;
+            return true;
         } else {
             Debug.Log($"Unable to place block at ({hoverPoint.x}, {hoverPoint.y})");
         }
@@ -279,8 +136,11 @@ public class Player : MonoBehaviourPun {
             if (hit.collider.TryGetComponent(out Trash trash)) {
                 trash.TrashObj(_heldPiece.gameObject);
                 _heldPiece = null;
+                return true;
             }
         }
+
+        return false;
     }
 
     Vector2Int _lastHoverPoint = new Vector2Int(-1, -1);
@@ -328,6 +188,142 @@ public class Player : MonoBehaviourPun {
 
     #endregion
 
+    #region Punching
+
+    public void Punch() {
+        if (_punchCooldown.IsTicking) return;
+        _punchCooldown.Start();
+
+        // Short dash towards mouse
+        Vector3 dir = GetMouseDir().normalized;
+        _playerMovement.AddVelocity(dir * (_playerMovement.MaxSpeed/2f + Constants.MinPunchDashDistance));
+
+
+        // Do punch, which can make a hit player drop their held piece
+    }
+
+    #endregion
+
+    #region Spells
+
+    public void Cast() {
+        if (_isShielding) return;
+
+        Vector3 dir = GetMouseDir().normalized;
+
+        if (_wallSpellScale > 0) { // cast wall spell this Cast, if available
+            CreateWall(dir, _wallSpellScale);
+            _wallSpellScale = 0;
+            return;
+        }
+
+        if (!SpellUseableTimer.IsTicking) return;
+
+        _preparedSpellProjectile.MoveDir = dir;
+        Vector2 startPos = dir * Constants.SpellInstantiatePosOffset + transform.position; // constant for spell spawn position offset
+
+        Factory.Instance.photonView.RPC(nameof(Factory.S_CreateSpellObj), RpcTarget.AllViaServer, _preparedSpellProjectile, startPos);
+    }
+
+    public bool PrepareSpell() {
+        Vector2Int hoverPoint = GetHoverPoint();
+        Block hoverBlock = _playerBoard.SelectPosition(hoverPoint.x, hoverPoint.y);
+        if (hoverBlock == null || !hoverBlock.IsActive) return false; // hovering over nothing
+
+        List<Block> spellBlocks = _playerBoard.FindColorBlockGroup(hoverPoint.x, hoverPoint.y);
+        Color color = spellBlocks[0].Color;
+        int power = spellBlocks.Count;
+        print($"Spell Power: {power}");
+
+        // TODO: delayed prepare with animation for "charging up"
+
+        // Consume blocks part of spell
+        _playerBoard.photonView.RPC(nameof(Board.S_DisableBlocks), RpcTarget.All, (object) spellBlocks.ToArray());
+
+        // Execute spell
+        // note: replace this with more robust system if expanding spell types
+        SpellType spellType = GameManager.Instance.SpellColorDict[color];
+        switch (spellType) {
+            case SpellType.Damage:
+                _preparedSpellProjectile = new() {Dmg = power, Speed = power / 2 + 1};
+                SpellUseableTimer.Start();
+                break;
+            case SpellType.Shield:
+                _playerHealth.ModifyShield(power);
+                break;
+            case SpellType.Speed:
+                _playerMovement.MultiplySpeedForDuration(1f + (float) power / 30);
+                break;
+            case SpellType.Wall:
+                _wallSpellScale = 1 + power / 4f;
+                break;
+            default:
+                Debug.LogError($"Unable to execute spell: Unexpected SpellType {spellType.ToString()}");
+                return false;
+        }
+
+        return true;
+    }
+
+    #endregion
+
+    #region Shield
+
+    bool _isShielding;
+    void HandleShield() {
+        if (!_isShielding || _playerHealth.Shield <= 0) return;
+
+        Vector3 dir = GetMouseDir().normalized;
+
+        // Calculate the angle in degrees between the player and the mouse, rotate shield to face mouse
+        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+        _shieldPivot.transform.localRotation = Quaternion.Euler(new Vector3(0, 0, angle));
+    }
+
+    float _fullShieldScale;
+    void ScaleShield(float shieldPercent) {
+        float size = shieldPercent * _fullShieldScale;
+        _shieldTransform.localScale = new Vector3(size, _shieldTransform.localScale.y, _shieldTransform.localScale.z);
+    }
+
+    public void ActivateShield() {
+        _isShielding = true;
+        photonView.RPC(nameof(S_ActivateShield), RpcTarget.All);
+    }
+    public void DeactivateShield() {
+        _isShielding = false;
+        photonView.RPC(nameof(S_DeactivateShield), RpcTarget.All);
+    }
+    [PunRPC]
+    public void S_ActivateShield() { _shieldPivot.SetActive(true); }
+    [PunRPC]
+    public void S_DeactivateShield() { _shieldPivot.SetActive(false); }
+
+    #endregion
+
+    #region Wall
+
+    public void CreateWall(Vector3 dir, float scaleFactor) {
+        Vector3 pos = transform.position + (dir * Constants.SpellInstantiatePosOffset);
+        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg; // Rotate to dir
+        Vector3 rot = new Vector3(0, 0, angle);
+        photonView.RPC(nameof(S_CreateWall), RpcTarget.All, pos, rot, scaleFactor);
+    }
+
+    [PunRPC]
+    public void S_CreateWall(Vector3 position, Vector3 rotation, float scaleFactor) {
+        // Create wall base object
+        Transform wallPivotObj = Instantiate(_wallPrefab, position, Quaternion.Euler(rotation)).transform;
+
+        // Scale wall outwards, keeping close edge in same place
+        Transform wallObj = wallPivotObj.GetChild(0);                                             // should be wall's collider/sprite object
+        float newPositionX = wallObj.localScale.x / 2.0f * scaleFactor + wallObj.localPosition.x; // calculation for obj offset after scale
+        wallObj.localPosition = new Vector3(newPositionX, wallObj.localPosition.y, wallObj.localPosition.z);
+        wallObj.localScale = new Vector3(wallObj.localScale.x * scaleFactor, wallObj.localScale.y, wallObj.localScale.z);
+    }
+
+    #endregion
+
     #region Helper
 
     public void Enable() {
@@ -345,8 +341,15 @@ public class Player : MonoBehaviourPun {
     }
     Vector2Int GetHeldPiececHoverPoint() {
         // localPosition works when Player is child of Board and centered at origin
-        return new Vector2Int(Mathf.RoundToInt(transform.localPosition.x + _heldPieceContainer.localPosition.x), 
+        return new Vector2Int(Mathf.RoundToInt(transform.localPosition.x + _heldPieceContainer.localPosition.x),
             Mathf.RoundToInt(transform.localPosition.y + _heldPieceContainer.localPosition.y));
+    }
+
+    // Returns vector from player to mouse
+    Vector3 GetMouseDir() {
+        Vector3 mouseWorldPosition = _mainCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+        mouseWorldPosition.z = transform.position.z;
+        return mouseWorldPosition - transform.position;
     }
 
     #endregion

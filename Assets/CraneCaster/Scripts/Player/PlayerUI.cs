@@ -1,3 +1,4 @@
+using System;
 using Photon.Pun;
 using UnityEngine;
 using UnityEngine.UI;
@@ -17,11 +18,13 @@ public class PlayerUI : MonoBehaviour, IPunObservable {
         _player = GetComponent<Player>();
         _playerHealth = GetComponent<PlayerHealth>();
         _playerMovement = GetComponent<PlayerMovement>();
+    }
 
+    void Start() {
         _playerHealth.OnUpdateHp += UpdateHpBar;
         _playerHealth.OnUpdateShield += UpdateShieldBar;
-        _playerMovement.OnUpdateSpeedDuration += UpdateSpeedBar;
-        _player.OnUpdateSpellDuration += UpdateSpellLifespanBar;
+        _playerMovement.SpeedingTimer.TickEvent += UpdateSpeedBar;
+        _player.SpellUseableTimer.TickEvent += UpdateSpellLifespanBar;
     }
 
     void UpdateHpBar(float percent) { _hpBar.fillAmount = percent; }

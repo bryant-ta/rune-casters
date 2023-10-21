@@ -1552,6 +1552,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1734824074}
   - component: {fileID: 1734824080}
+  - component: {fileID: 1734824081}
   - component: {fileID: 1734824078}
   - component: {fileID: 1734824075}
   - component: {fileID: 1734824077}
@@ -1670,6 +1671,18 @@ MonoBehaviour:
   - Type: 3
     Color: {r: 0.60784316, g: 0.3647059, b: 0.8980393, a: 1}
     SpawnPercentChance: 30
+--- !u!114 &1734824081
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1734824073}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5dd47a39ba2b0f640b91bca15120d44e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &1800332713 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1040271891258225583, guid: 089123c56d4df5643b562b091f2a6a68, type: 3}

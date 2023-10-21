@@ -24,7 +24,8 @@ public class PlayerInput : MonoBehaviourPun {
         if (!photonView.IsMine) return;
 
         if (ctx.performed) {
-            _player.Interact();
+            if (_player.Interact()) { }
+            else _player.Punch();
         }
     }
     
@@ -32,11 +33,9 @@ public class PlayerInput : MonoBehaviourPun {
         if (!photonView.IsMine) return;
         
         if (ctx.performed) {
-            if (_player.RotatePiece()) {
-                
-            } else if (_player.PrepareSpell()){
-                
-            } else {
+            if (_player.RotatePiece()) { } 
+            else if (_player.PrepareSpell()) { } 
+            else {
                 _player.ActivateShield();
             }
         }

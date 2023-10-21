@@ -1,22 +1,31 @@
 using System;
 using System.Collections;
 using Photon.Pun;
+using Timers;
 using UnityEngine;
 
 [RequireComponent(typeof(PlayerInput))]
 public class PlayerMovement : MonoBehaviourPun {
+    public float MaxSpeed => _maxSpeed;
     [SerializeField] float _maxSpeed = 10f;
-    [SerializeField] float _maxAcceleration = 10f;
+    public float MaxAcceleration => _maxAcceleration;
+    [SerializeField] float _maxAcceleration = 80f;
 
     public Vector2 moveInput;
 
     Rigidbody2D rb;
 
-    public Action<float> OnUpdateSpeedDuration;
+    // Speeding Spell
+    public CountdownTimer SpeedingTimer;
+    float _origMaxSpeed;
+    float _origMaxAcceleration;
 
     void Awake() {
         _origMaxSpeed = _maxSpeed;
         _origMaxAcceleration = _maxAcceleration;
+
+        SpeedingTimer = new CountdownTimer(Constants.SpellDuration);
+        SpeedingTimer.EndEvent += ResetSpeed;
     }
 
     void Start() {
@@ -43,30 +52,25 @@ public class PlayerMovement : MonoBehaviourPun {
         rb.AddForce(accel, ForceMode2D.Force);
     }
 
-    public void MultiplySpeedForDuration(float percent, float duration) {
-        if (_multiplySpeedTimer != null) {
-            StopCoroutine(_multiplySpeedTimer);
+    public void AddVelocity(Vector2 velocity) {
+        rb.velocity += velocity;
+    }
+    public float GetSpeed() {
+        return rb.velocity.magnitude;
+    }
+
+    public void MultiplySpeedForDuration(float percent) {
+        if (SpeedingTimer.IsTicking) {
             _maxSpeed = _origMaxSpeed;
             _maxAcceleration = _origMaxAcceleration;
         }
-        _multiplySpeedTimer = StartCoroutine(MultiplySpeedTimer(percent, duration));
-    }
-    
-    float _origMaxSpeed;
-    float _origMaxAcceleration;
-    Coroutine _multiplySpeedTimer;
-    IEnumerator MultiplySpeedTimer(float percent, float duration) {
+        
         _maxSpeed *= percent;
         _maxAcceleration *= percent;
-
-        float timer = duration;
-        while (timer > 0) {
-            timer -= Time.deltaTime;
-            OnUpdateSpeedDuration.Invoke(timer / duration);
-
-            yield return null;
-        }
-
+        
+        SpeedingTimer.Start();
+    }
+    void ResetSpeed() {
         _maxSpeed = _origMaxSpeed;
         _maxAcceleration = _origMaxAcceleration;
     }
