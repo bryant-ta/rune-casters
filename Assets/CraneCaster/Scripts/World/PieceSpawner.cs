@@ -1,8 +1,5 @@
-using System;
-using System.Collections.Generic;
 using Photon.Pun;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 public class PieceSpawner : MonoBehaviour {
 	[SerializeField] [Tooltip("Spawn every X seconds")] int _spawnRate = 10;
@@ -35,7 +32,7 @@ public class PieceSpawner : MonoBehaviour {
 
 	PieceData GeneratePieceData() {
 		PieceData pieceData = PieceTypeLookUp.LookUp[Utils.GetRandomEnum<PieceType>()];
-		pieceData.Color = GameManager.Instance.SpellColors[Random.Range(0, GameManager.Instance.SpellColors.Count)].Color;
+		pieceData.Color = GameManager.Instance.ColorRollTable.GetRandom();
 		pieceData.CanRotate = true;
 
 		return pieceData;

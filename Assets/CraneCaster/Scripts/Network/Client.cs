@@ -36,7 +36,7 @@ public class Client : MonoBehaviourPunCallbacks {
     public override void OnJoinedLobby() {
         print("Joined lobby.");
 
-        JoinRoom("TestRoom"); // TEMP: remove when player input for room
+        JoinRoom("TestRoom1"); // TEMP: remove when player input for room
     }
 
     void JoinRoom(string roomName) {

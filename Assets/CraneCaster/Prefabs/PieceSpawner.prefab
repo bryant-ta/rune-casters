@@ -46,7 +46,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 892433e9f5e08174f8fd111338be4c0a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _spawnRate: 4
+  _spawnRate: 3
   _endPoint: {fileID: 0}
 --- !u!1 &7970547819725360069
 GameObject:

@@ -56,4 +56,5 @@ public struct SpellProjectileData {
 public struct SpellColor {
 	public SpellType Type;
 	public Color Color;
+	public double SpawnPercentChance;
 }

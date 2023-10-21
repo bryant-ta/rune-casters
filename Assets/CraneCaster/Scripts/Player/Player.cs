@@ -117,7 +117,7 @@ public class Player : MonoBehaviourPun {
                 _playerMovement.MultiplySpeedForDuration(1f + (float)power / 30, Constants.SpellDuration);
                 break;
             case SpellType.Wall:
-                _wallSpellScale = 1 + power / 2f;
+                _wallSpellScale = 1 + power / 4f;
                 break;
             default:
                 Debug.LogError($"Unable to execute spell: Unexpected SpellType {spellType.ToString()}");
@@ -264,7 +264,7 @@ public class Player : MonoBehaviourPun {
     void Drop() {
         if (_heldPiece == null) return;
 
-        Vector2Int hoverPoint = GetHoverPoint();
+        Vector2Int hoverPoint = GetHeldPiececHoverPoint();
 
         if (_playerBoard.PlacePiece(_heldPiece, hoverPoint.x, hoverPoint.y)) {
             _heldPiece = null;
@@ -290,7 +290,8 @@ public class Player : MonoBehaviourPun {
             return;
         }
 
-        Vector2Int hoverPoint = GetHoverPoint();
+        // Use piece's location as hover point
+        Vector2Int hoverPoint = GetHeldPiececHoverPoint();
         if (_lastHoverPoint == hoverPoint) return;
         _lastHoverPoint = hoverPoint;
 
@@ -341,6 +342,11 @@ public class Player : MonoBehaviourPun {
     Vector2Int GetHoverPoint() {
         // localPosition works when Player is child of Board and centered at origin
         return new Vector2Int(Mathf.RoundToInt(transform.localPosition.x), Mathf.RoundToInt(transform.localPosition.y));
+    }
+    Vector2Int GetHeldPiececHoverPoint() {
+        // localPosition works when Player is child of Board and centered at origin
+        return new Vector2Int(Mathf.RoundToInt(transform.localPosition.x + _heldPieceContainer.localPosition.x), 
+            Mathf.RoundToInt(transform.localPosition.y + _heldPieceContainer.localPosition.y));
     }
 
     #endregion

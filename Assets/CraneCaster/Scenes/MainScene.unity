@@ -1660,12 +1660,16 @@ MonoBehaviour:
   SpellColors:
   - Type: 0
     Color: {r: 0.7843138, g: 0.1137255, b: 0.14509805, a: 1}
+    SpawnPercentChance: 50
   - Type: 1
     Color: {r: 0.87843144, g: 0.79215693, b: 0.23529413, a: 1}
+    SpawnPercentChance: 10
   - Type: 2
     Color: {r: 0.09019608, g: 0.74509805, b: 0.73333335, a: 1}
+    SpawnPercentChance: 10
   - Type: 3
     Color: {r: 0.60784316, g: 0.3647059, b: 0.8980393, a: 1}
+    SpawnPercentChance: 30
 --- !u!114 &1800332713 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1040271891258225583, guid: 089123c56d4df5643b562b091f2a6a68, type: 3}
