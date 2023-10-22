@@ -33,6 +33,7 @@ public static class CustomPropertiesLookUp {
 public enum Tags {
     Player,
     Pickup,
+    Punch,
     Spell,
     Wall,
 }
@@ -41,6 +42,7 @@ public static class TagsLookUp {
     public static Dictionary<Tags, string> LookUp = new() {
         { Tags.Player, "Player" },
         { Tags.Pickup, "Pickup" },
+        { Tags.Punch, "Punch" },
         { Tags.Spell, "Spell" },
         { Tags.Wall, "Wall" },
     };

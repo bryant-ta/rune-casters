@@ -22,7 +22,6 @@ namespace Timers {
             if (IsTicking) Stop();
             
             _timer = Duration;
-            Debug.Log("Started Timer");
             IsTicking = true;
             GlobalClock.onTick += Timer;
         }
@@ -34,7 +33,6 @@ namespace Timers {
 
         void Timer(float deltaTime) {
             _timer -= deltaTime;
-            Debug.Log(_timer);
 
             // Invoke TickEvent
             if (_timer < 0) _timer = 0; // needed for invoking TickEvent with non-negative percent
@@ -43,7 +41,6 @@ namespace Timers {
             // Finished Timer
             if (_timer == 0) {
                 Stop();
-                Debug.Log("STOPED Timer");
             }
         }
     }

@@ -14,31 +14,36 @@ public class Player : MonoBehaviourPun {
 
     [SerializeField] LayerMask _interactableLayer;
     [SerializeField] Board _playerBoard;
+    [SerializeField] Transform _playerPivot;
     Camera _mainCamera;
 
     PlayerMovement _playerMovement;
     PlayerHealth _playerHealth;
 
     [Header("Pieces")]
-    Piece _heldPiece;
-
-    List<GameObject> _nearObjs = new();
+    
     [SerializeField] Transform _heldPieceContainer;
     [SerializeField] PieceRenderer _ghostPr;
+    Piece _heldPiece;
+    List<GameObject> _nearObjs = new();
 
     [Header("Punching")]
+
+    [SerializeField] int _punchDmg; // annoying needs to be above property so Header works
+    public int PunchDmg => _punchDmg;
+    GameObject _punchHitboxObj;
     CountdownTimer _punchCooldown;
 
     [Header("Spells")]
+    
     [SerializeField] SpellProjectileData _preparedSpellProjectile;
 
     public CountdownTimer SpellUseableTimer { get; private set; }
     float _wallSpellScale;
 
     [Header("Shield")]
-    [SerializeField] GameObject _shieldPivot;
-
     Transform _shieldTransform;
+    bool _isShielding;
 
     [Header("Wall")]
     [SerializeField] GameObject _wallPrefab;
@@ -48,28 +53,43 @@ public class Player : MonoBehaviourPun {
 
         _playerMovement = GetComponent<PlayerMovement>();
         _playerHealth = GetComponent<PlayerHealth>();
+        
+        _punchHitboxObj = _playerPivot.transform.GetChild(0).gameObject;
 
-        _shieldTransform = _shieldPivot.transform.GetChild(0);
+        _shieldTransform = _playerPivot.transform.GetChild(1);
         _fullShieldScale = _shieldTransform.localScale.x;
 
         _punchCooldown = new CountdownTimer(2f);
         SpellUseableTimer = new CountdownTimer(Constants.SpellDuration);
     }
 
-    void Start() { _playerHealth.OnUpdateShield += ScaleShield; }
+    void Start() {
+        _playerHealth.OnUpdateShield += ScaleShield;
+        _playerHealth.OnLoseHp += DropPiece;
+    }
 
     void Update() {
+        TurnToCursor();
         HandleGhostPiece();
-        HandleShield();
+    }
+
+    void TurnToCursor() {
+        if (!photonView.IsMine) return;
+        
+        Vector3 dir = GetMouseDir().normalized;
+
+        // Calculate the angle in degrees between the player and the mouse, rotate to face mouse
+        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+        _playerPivot.localRotation = Quaternion.Euler(new Vector3(0, 0, angle));
     }
 
     #region Piece
 
     public bool Interact() {
         if (_heldPiece == null) {
-            return PickUp();
+            return PickUpPiece();
         } else {
-            return Drop();
+            return PlacePiece();
         }
     }
 
@@ -83,14 +103,14 @@ public class Player : MonoBehaviourPun {
         return false;
     }
 
-    bool PickUp() {
+    bool PickUpPiece() {
         if (_nearObjs.Count == 0) return false;
 
         // Find nearest piece
         float minDistance = int.MaxValue;
         foreach (GameObject obj in _nearObjs.ToList()) {
             float d = Vector2.Distance(transform.position, obj.transform.position);
-            if (d < minDistance && obj.TryGetComponent(out Piece piece)) {
+            if (d < minDistance && obj.TryGetComponent(out Piece piece) && obj.transform.parent == null) {
                 minDistance = d;
                 _heldPiece = piece;
             }
@@ -118,7 +138,7 @@ public class Player : MonoBehaviourPun {
         return true;
     }
 
-    bool Drop() {
+    bool PlacePiece() {
         if (_heldPiece == null) return false;
 
         Vector2Int hoverPoint = GetHeldPiececHoverPoint();
@@ -141,6 +161,18 @@ public class Player : MonoBehaviourPun {
         }
 
         return false;
+    }
+
+    // Drop releases held piece at player's position, ready to be picked up again
+    void DropPiece() {
+        if (_heldPiece == null) return;
+        
+        // Release ownership of held piece
+        _heldPiece.photonView.TransferOwnership(PhotonNetwork.MasterClient); // client authoritative - requires Piece Ownership -> Takeover
+
+        // Unparent held piece
+        NetworkManager.Instance.photonView.RPC(nameof(NetworkUtils.S_UnsetParent), RpcTarget.All, _heldPiece.photonView.ViewID);
+        _heldPiece = null;
     }
 
     Vector2Int _lastHoverPoint = new Vector2Int(-1, -1);
@@ -196,11 +228,13 @@ public class Player : MonoBehaviourPun {
 
         // Short dash towards mouse
         Vector3 dir = GetMouseDir().normalized;
-        _playerMovement.AddVelocity(dir * (_playerMovement.MaxSpeed/2f + Constants.MinPunchDashDistance));
-
-
+        _playerMovement.SetVelocity(dir * (_playerMovement.MaxSpeed/2f + Constants.MinPunchDashDistance));
+        
         // Do punch, which can make a hit player drop their held piece
+        photonView.RPC(nameof(S_ActivatePunchHitbox), RpcTarget.All);
     }
+    [PunRPC]
+    public void S_ActivatePunchHitbox() { _punchHitboxObj.SetActive(true); }
 
     #endregion
 
@@ -255,7 +289,7 @@ public class Player : MonoBehaviourPun {
                 _playerMovement.MultiplySpeedForDuration(1f + (float) power / 30);
                 break;
             case SpellType.Wall:
-                _wallSpellScale = 1 + power / 4f;
+                _wallSpellScale = 1 + power / 3f;
                 break;
             default:
                 Debug.LogError($"Unable to execute spell: Unexpected SpellType {spellType.ToString()}");
@@ -268,17 +302,6 @@ public class Player : MonoBehaviourPun {
     #endregion
 
     #region Shield
-
-    bool _isShielding;
-    void HandleShield() {
-        if (!_isShielding || _playerHealth.Shield <= 0) return;
-
-        Vector3 dir = GetMouseDir().normalized;
-
-        // Calculate the angle in degrees between the player and the mouse, rotate shield to face mouse
-        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
-        _shieldPivot.transform.localRotation = Quaternion.Euler(new Vector3(0, 0, angle));
-    }
 
     float _fullShieldScale;
     void ScaleShield(float shieldPercent) {
@@ -295,9 +318,9 @@ public class Player : MonoBehaviourPun {
         photonView.RPC(nameof(S_DeactivateShield), RpcTarget.All);
     }
     [PunRPC]
-    public void S_ActivateShield() { _shieldPivot.SetActive(true); }
+    public void S_ActivateShield() { _shieldTransform.gameObject.SetActive(true); }
     [PunRPC]
-    public void S_DeactivateShield() { _shieldPivot.SetActive(false); }
+    public void S_DeactivateShield() { _shieldTransform.gameObject.SetActive(false); }
 
     #endregion
 
@@ -305,7 +328,7 @@ public class Player : MonoBehaviourPun {
 
     public void CreateWall(Vector3 dir, float scaleFactor) {
         Vector3 pos = transform.position + (dir * Constants.SpellInstantiatePosOffset);
-        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg; // Rotate to dir
+        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg; // Rotate wall to extend away from player
         Vector3 rot = new Vector3(0, 0, angle);
         photonView.RPC(nameof(S_CreateWall), RpcTarget.All, pos, rot, scaleFactor);
     }

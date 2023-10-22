@@ -55,6 +55,9 @@ public class PlayerMovement : MonoBehaviourPun {
     public void AddVelocity(Vector2 velocity) {
         rb.velocity += velocity;
     }
+    public void SetVelocity(Vector2 velocity) {
+        rb.velocity = velocity;
+    }
     public float GetSpeed() {
         return rb.velocity.magnitude;
     }

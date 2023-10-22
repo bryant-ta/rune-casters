@@ -18,6 +18,7 @@ public class PlayerHealth : MonoBehaviourPunCallbacks {
     Player _player;
 
     public Action<float> OnUpdateHp;
+    public Action OnLoseHp;
     public Action<float> OnUpdateShield;
 
     void Awake() {
@@ -88,8 +89,14 @@ public class PlayerHealth : MonoBehaviourPunCallbacks {
         if (_player.PlayerId != targetPlayer.ActorNumber) return;
 
         if (changedProps[CustomPropertiesLookUp.LookUp[CustomPropertiesKey.Hp]] != null) {
+            int oldHp = _hp;
             _hp = (int) changedProps[CustomPropertiesLookUp.LookUp[CustomPropertiesKey.Hp]];
             OnUpdateHp.Invoke((float) _hp / _maxHp);
+            
+            // Damage to Player causes dropping any held piece
+            if (oldHp > _hp) {
+                OnLoseHp?.Invoke();
+            }
         }
         if (changedProps[CustomPropertiesLookUp.LookUp[CustomPropertiesKey.Shield]] != null) {
             _shield = (int) changedProps[CustomPropertiesLookUp.LookUp[CustomPropertiesKey.Shield]];
@@ -103,6 +110,10 @@ public class PlayerHealth : MonoBehaviourPunCallbacks {
         if (col.gameObject.CompareTag(TagsLookUp.LookUp[Tags.Spell])) {
             SpellProjectile spellProjectile = col.gameObject.GetComponent<SpellProjectile>();
             ModifyHp(-spellProjectile.Dmg);
+        }
+        if (col.gameObject.CompareTag(TagsLookUp.LookUp[Tags.Punch])) {
+            PunchHitbox punchHitbox = col.gameObject.GetComponent<PunchHitbox>();
+            ModifyHp(-punchHitbox.Player.PunchDmg);
         }
     }
 }
