@@ -14,14 +14,14 @@ public class PlayerInput : MonoBehaviourPun {
     }
 
     public void OnMove(InputAction.CallbackContext context) {
-        if (!photonView.IsMine) return;
+        if (!photonView.IsMine || _player.StunnedTimer.IsTicking) return;
 
         _playerMovement.moveInput = context.ReadValue<Vector2>();
     }
 
     // uses Action Type "Button"
     public void OnPrimary(InputAction.CallbackContext ctx) {
-        if (!photonView.IsMine) return;
+        if (!photonView.IsMine || _player.StunnedTimer.IsTicking) return;
 
         if (ctx.performed) {
             if (_player.Interact()) { }
@@ -30,7 +30,7 @@ public class PlayerInput : MonoBehaviourPun {
     }
     
     public void OnSecondary(InputAction.CallbackContext ctx) {
-        if (!photonView.IsMine) return;
+        if (!photonView.IsMine || _player.StunnedTimer.IsTicking) return;
         
         if (ctx.performed) {
             if (_player.RotatePiece()) { } 
@@ -46,7 +46,7 @@ public class PlayerInput : MonoBehaviourPun {
     }
 
     public void OnCast(InputAction.CallbackContext ctx) {
-        if (!photonView.IsMine) return;
+        if (!photonView.IsMine || _player.StunnedTimer.IsTicking) return;
 
         if (ctx.performed) {
             _player.Cast();

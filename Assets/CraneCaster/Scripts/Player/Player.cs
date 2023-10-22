@@ -15,10 +15,13 @@ public class Player : MonoBehaviourPun {
     [SerializeField] LayerMask _interactableLayer;
     [SerializeField] Board _playerBoard;
     [SerializeField] Transform _playerPivot;
-    Camera _mainCamera;
+
+    public float stunDuration = 1f; // should be less than punch cooldown
+    public CountdownTimer StunnedTimer; // possibly replace with ref to stunned animation... or state machine?
 
     PlayerMovement _playerMovement;
     PlayerHealth _playerHealth;
+    Camera _mainCamera;
 
     [Header("Pieces")]
     
@@ -29,10 +32,11 @@ public class Player : MonoBehaviourPun {
 
     [Header("Punching")]
 
-    [SerializeField] int _punchDmg; // annoying needs to be above property so Header works
+    [SerializeField] float _punchCooldown = 2f;
     public int PunchDmg => _punchDmg;
+    [SerializeField] int _punchDmg;
     GameObject _punchHitboxObj;
-    CountdownTimer _punchCooldown;
+    CountdownTimer _punchCooldownTimer;
 
     [Header("Spells")]
     
@@ -59,8 +63,9 @@ public class Player : MonoBehaviourPun {
         _shieldTransform = _playerPivot.transform.GetChild(1);
         _fullShieldScale = _shieldTransform.localScale.x;
 
-        _punchCooldown = new CountdownTimer(2f);
+        _punchCooldownTimer = new CountdownTimer(_punchCooldown);
         SpellUseableTimer = new CountdownTimer(Constants.SpellDuration);
+        StunnedTimer = new CountdownTimer(stunDuration);
     }
 
     void Start() {
@@ -223,8 +228,8 @@ public class Player : MonoBehaviourPun {
     #region Punching
 
     public void Punch() {
-        if (_punchCooldown.IsTicking) return;
-        _punchCooldown.Start();
+        if (_punchCooldownTimer.IsTicking) return;
+        _punchCooldownTimer.Start();
 
         // Short dash towards mouse
         Vector3 dir = GetMouseDir().normalized;

@@ -114,6 +114,7 @@ public class PlayerHealth : MonoBehaviourPunCallbacks {
         if (col.gameObject.CompareTag(TagsLookUp.LookUp[Tags.Punch])) {
             PunchHitbox punchHitbox = col.gameObject.GetComponent<PunchHitbox>();
             ModifyHp(-punchHitbox.Player.PunchDmg);
+            _player.StunnedTimer.Start();
         }
     }
 }
