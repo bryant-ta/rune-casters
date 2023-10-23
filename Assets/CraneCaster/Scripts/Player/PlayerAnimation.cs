@@ -4,7 +4,7 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerAnimation : MonoBehaviour
 {
-    [SerializeField] private SpriteRenderer sprite;
+    [SerializeField] private SpriteRenderer playerSprite;
     
     private Rigidbody2D _rb;
     private Animator _animator;
@@ -24,7 +24,7 @@ public class PlayerAnimation : MonoBehaviour
         float xVelocity = _rb.velocity.x;
         if (!Mathf.Approximately(xVelocity, 0))
         {
-            sprite.flipX = xVelocity > 0;
+            playerSprite.flipX = xVelocity > 0;
         }
     }
 }
