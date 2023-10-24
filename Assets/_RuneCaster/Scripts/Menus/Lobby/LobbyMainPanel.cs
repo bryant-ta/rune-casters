@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Photon.Pun;
 using UnityEngine;
 using UnityEngine.UI;
+using WebSocketSharp;
 
 // Based on DemoAsteroids Project from Photon Demos
 
@@ -189,8 +190,12 @@ public class LobbyMainPanel : MonoBehaviourPunCallbacks {
         roomName = (roomName.Equals(string.Empty)) ? "Room " + Random.Range(1000, 10000) : roomName;
 
         byte maxPlayers;
-        byte.TryParse(MaxPlayersInputField.text, out maxPlayers);
-        maxPlayers = (byte) Mathf.Clamp(maxPlayers, 2, 8);
+        if (!MaxPlayersInputField.text.IsNullOrEmpty()) {
+            byte.TryParse(MaxPlayersInputField.text, out maxPlayers);
+            maxPlayers = (byte) Mathf.Clamp(maxPlayers, 2, 8);
+        } else {
+            maxPlayers = 4;
+        }
 
         RoomOptions options = new RoomOptions {MaxPlayers = maxPlayers, PlayerTtl = 10000};
 
@@ -229,6 +234,11 @@ public class LobbyMainPanel : MonoBehaviourPunCallbacks {
         PhotonNetwork.CurrentRoom.IsVisible = false;
 
         PhotonNetwork.LoadLevel("MainScene");
+    }
+
+    public void OnExitToDesktopClicked() {
+        PhotonNetwork.Disconnect(); // prob doesn't complete before closing game?
+        Application.Quit();
     }
 
     #endregion

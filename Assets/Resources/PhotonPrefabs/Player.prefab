@@ -155,7 +155,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ef126ad66240184c8a4ed88ea2ec392, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sprite: {fileID: 5783536945426889006}
+  playerSprite: {fileID: 5783536945426889006}
 --- !u!114 &-5279473841808718174
 MonoBehaviour:
   m_ObjectHideFlags: 0
