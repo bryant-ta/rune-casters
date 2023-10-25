@@ -10,8 +10,10 @@ public class GameManager : MonoBehaviour {
 	public Dictionary<Color, SpellType> SpellColorDict { get; private set; }
 	public RollTable<Color> ColorRollTable { get; private set; }
 
-	[SerializeField] int _startGameDelay;
-	CountdownTimer _startGameCountdown;
+	public int StartGameDelay;
+	public CountdownTimer StartGameCountdown { get; private set; }
+
+	public bool IsPaused;
 
 	void Awake() {
 		if (Instance != null && Instance != this) {
@@ -27,12 +29,20 @@ public class GameManager : MonoBehaviour {
 			ColorRollTable.Add(spellColor.Color, spellColor.SpawnPercentChance);
 			SpellColorDict[spellColor.Color] = spellColor.Type;
 		}
+		
+		StartGameCountdown = new CountdownTimer(StartGameDelay);
+		IsPaused = true;
+	}
 
-		_startGameCountdown = new CountdownTimer(_startGameDelay);
-		_startGameCountdown.EndEvent += StartGame;
+	public void StartInitialCountdown() {
+		print("countdown started");
+		StartGameCountdown.Start();
+		StartGameCountdown.EndEvent += StartGame;
 	}
 
 	public void StartGame() {
 		Debug.Log("Starting game!");
+		StartGameCountdown.EndEvent -= StartGame;
+		IsPaused = false;
 	}
 }

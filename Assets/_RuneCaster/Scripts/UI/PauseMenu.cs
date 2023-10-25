@@ -7,11 +7,9 @@ using UnityEngine.SceneManagement;
 public class PauseMenu : MonoBehaviourPunCallbacks {
 	[SerializeField] GameObject _pauseMenuPanel;
 
-	public bool IsPaused { get; private set; }
-
 	public void OnTogglePauseMenu() {
 		_pauseMenuPanel.SetActive(!_pauseMenuPanel.activeSelf);
-		IsPaused = _pauseMenuPanel.activeSelf;
+		GameManager.Instance.IsPaused = _pauseMenuPanel.activeSelf;
 	}
 	
 	public void OnLeaveGameButtonClicked() {

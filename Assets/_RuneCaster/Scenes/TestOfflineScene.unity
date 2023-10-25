@@ -474,6 +474,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 3433150683863589864, guid: 92c6078e03110e042a9a692d02a586ea, type: 3}
+      propertyPath: sceneViewId
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3716590663837940725, guid: 92c6078e03110e042a9a692d02a586ea, type: 3}
       propertyPath: _scenePathHash
       value: 3822898407

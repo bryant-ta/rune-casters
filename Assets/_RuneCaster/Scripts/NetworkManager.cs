@@ -53,10 +53,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
     }
 
     public override void OnPlayerPropertiesUpdate(Photon.Realtime.Player targetPlayer, Hashtable changedProps) {
-        if (!PhotonNetwork.IsMasterClient) {
-            return;
-        }
-
         // Start countdown for beginning game after all players are ready
         if (changedProps.ContainsKey(CustomPropertiesKey.PlayerLoaded)) {
             bool allPlayersLoaded = true;
@@ -72,7 +68,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
             }
 
             if (allPlayersLoaded) {
-                GameManager.Instance.StartGame();
+                GameManager.Instance.StartInitialCountdown();
             } else {
                 Debug.Log("Waiting for all players to load.");
             }

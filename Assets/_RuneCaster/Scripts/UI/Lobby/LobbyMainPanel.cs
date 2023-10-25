@@ -12,8 +12,8 @@ namespace Lobby {
 public class LobbyMainPanel : MonoBehaviourPunCallbacks {
     [Header("Login Panel")]
     public GameObject LoginPanel;
-
     public InputField PlayerNameInput;
+    public GameObject ConnectingIcon;
 
     [Header("Selection Panel")]
     public GameObject SelectionPanel;
@@ -58,7 +58,10 @@ public class LobbyMainPanel : MonoBehaviourPunCallbacks {
 
     #region PUN CALLBACKS
 
-    public override void OnConnectedToMaster() { this.SetActivePanel(SelectionPanel.name); }
+    public override void OnConnectedToMaster() {
+        ConnectingIcon.SetActive(false);
+        SetActivePanel(SelectionPanel.name);
+    }
 
     public override void OnRoomListUpdate(List<RoomInfo> roomList) {
         ClearRoomListView();
@@ -214,6 +217,7 @@ public class LobbyMainPanel : MonoBehaviourPunCallbacks {
         string playerName = PlayerNameInput.text;
 
         if (!playerName.Equals("")) {
+            ConnectingIcon.SetActive(true);
             PhotonNetwork.LocalPlayer.NickName = playerName;
             PhotonNetwork.ConnectUsingSettings();
         } else {
