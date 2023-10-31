@@ -14,13 +14,13 @@ GameObject:
   - component: {fileID: 1069461258500976327}
   - component: {fileID: 4883813108509202539}
   - component: {fileID: -660007608926237771}
-  - component: {fileID: 517525312870115891}
   - component: {fileID: -5279473841808718174}
   - component: {fileID: -1953885343956121856}
   - component: {fileID: 3588719353585691130}
   - component: {fileID: 3555557013316209614}
   - component: {fileID: 3433150683863589864}
   - component: {fileID: 8453513228205725355}
+  - component: {fileID: 517525312870115891}
   - component: {fileID: 6555654096562879472}
   m_Layer: 0
   m_Name: Player
@@ -143,19 +143,6 @@ MonoBehaviour:
   _maxSpeed: 8
   _maxAcceleration: 80
   moveInput: {x: 0, y: 0}
---- !u!114 &517525312870115891
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1069461258500976345}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5ef126ad66240184c8a4ed88ea2ec392, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  playerSprite: {fileID: 5783536945426889006}
 --- !u!114 &-5279473841808718174
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -395,6 +382,19 @@ MonoBehaviour:
   m_SynchronizeRotation: 0
   m_SynchronizeScale: 0
   m_UseLocal: 1
+--- !u!114 &517525312870115891
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1069461258500976345}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5ef126ad66240184c8a4ed88ea2ec392, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerSprite: {fileID: 5783536945426889006}
 --- !u!95 &6555654096562879472
 Animator:
   serializedVersion: 5

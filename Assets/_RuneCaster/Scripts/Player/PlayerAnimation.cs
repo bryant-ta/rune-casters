@@ -1,3 +1,5 @@
+using System;
+using Photon.Pun;
 using UnityEngine;
 
 [RequireComponent(typeof(Animator))]
@@ -17,14 +19,18 @@ public class PlayerAnimation : MonoBehaviour
         _rb = GetComponent<Rigidbody2D>();
         _animator = GetComponent<Animator>();
     }
-    
-    public void Update()
-    {
-        _animator.SetFloat(SpeedHash, _rb.velocity.magnitude);
-        float xVelocity = _rb.velocity.x;
-        if (!Mathf.Approximately(xVelocity, 0))
+
+    Vector2 _lastPos;
+    public void Update() {
+        Vector2 movementVector = (Vector2) transform.position - _lastPos;
+        float movementDiff = movementVector.magnitude * Math.Sign(movementVector.x);
+        print(movementDiff);
+        _animator.SetFloat(SpeedHash, movementVector.magnitude);
+        if (Mathf.Abs(movementDiff) > 0.05f)
         {
-            playerSprite.flipX = xVelocity > 0;
+            playerSprite.flipX = movementDiff > 0;
         }
+
+        _lastPos = transform.position;
     }
 }
