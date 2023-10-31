@@ -15,6 +15,8 @@ public class GameManager : MonoBehaviour {
 
 	public bool IsPaused;
 
+	[SerializeField] bool _debug;
+
 	void Awake() {
 		if (Instance != null && Instance != this) {
 			Destroy(gameObject);
@@ -32,9 +34,15 @@ public class GameManager : MonoBehaviour {
 		
 		StartGameCountdown = new CountdownTimer(StartGameDelay);
 		IsPaused = true;
+		
+		// DEBUG
+		if (_debug) IsPaused = false;
 	}
 
 	public void StartInitialCountdown() {
+		// DEBUG
+		if (_debug) return;
+		
 		print("countdown started");
 		StartGameCountdown.Start();
 		StartGameCountdown.EndEvent += StartGame;
