@@ -24,7 +24,6 @@ public class PlayerAnimation : MonoBehaviour
     public void Update() {
         Vector2 movementVector = (Vector2) transform.position - _lastPos;
         float movementDiff = movementVector.magnitude * Math.Sign(movementVector.x);
-        print(movementDiff);
         _animator.SetFloat(SpeedHash, movementVector.magnitude);
         if (Mathf.Abs(movementDiff) > 0.05f)
         {

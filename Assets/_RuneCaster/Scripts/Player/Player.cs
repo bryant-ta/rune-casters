@@ -20,6 +20,8 @@ namespace Game {
         public float stunDuration = 1f;     // should be less than punch cooldown
         public CountdownTimer StunnedTimer; // possibly replace with ref to stunned animation... or state machine?
 
+        public bool IsDead { get; private set; }
+
         PlayerMovement _playerMovement;
         PlayerHealth _playerHealth;
         Camera _mainCamera;
@@ -87,6 +89,17 @@ namespace Game {
             // Calculate the angle in degrees between the player and the mouse, rotate to face mouse
             float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
             _playerPivot.localRotation = Quaternion.Euler(new Vector3(0, 0, angle));
+        }
+
+        [PunRPC]
+        public void Death() {
+            Debug.Log("Player died");
+            IsDead = true;
+            _playerBoard.GetComponent<BoardRenderer>().ChangeOpacity(0.5f);
+            DropPiece();
+            
+            // TODO: add player death animation
+            gameObject.SetActive(false);
         }
 
         #region Piece

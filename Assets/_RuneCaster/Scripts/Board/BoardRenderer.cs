@@ -4,6 +4,7 @@ using UnityEngine;
 public class BoardRenderer : MonoBehaviour {
 	Board _board;
 	[SerializeField] Transform _blockContainer;
+	[SerializeField] SpriteRenderer _boardSprite;
 	
 	Dictionary<Block, SpriteRenderer> _blockSprites = new();
 
@@ -35,5 +36,11 @@ public class BoardRenderer : MonoBehaviour {
 
 			sr.gameObject.SetActive(block.IsActive);
 		}
+	}
+
+	public void ChangeOpacity(float alpha) {
+		Color c = _boardSprite.color;
+		c.a = alpha;
+		_boardSprite.color = c;
 	}
 }

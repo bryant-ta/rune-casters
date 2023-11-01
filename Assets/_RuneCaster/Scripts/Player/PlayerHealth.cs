@@ -47,8 +47,7 @@ public class PlayerHealth : MonoBehaviourPunCallbacks {
 
         // Death
         if (newHp == 0) {
-            Debug.Log("Player died");
-            NetworkManager.Instance.photonView.RPC(nameof(NetworkManager.DisablePlayerObj), RpcTarget.AllBuffered, _player.PlayerId);
+            _player.photonView.RPC(nameof(Player.Death), RpcTarget.All);
         }
 
         return newHp - _hp;

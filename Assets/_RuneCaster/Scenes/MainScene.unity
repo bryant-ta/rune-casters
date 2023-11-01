@@ -1949,6 +1949,10 @@ PrefabInstance:
       propertyPath: m_PresetInfoIsWorld
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2011425152405836468, guid: 089123c56d4df5643b562b091f2a6a68, type: 3}
+      propertyPath: m_SynchronizeLayers.Array.data[0].SynchronizeType
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5010852832384989528, guid: 089123c56d4df5643b562b091f2a6a68, type: 3}
       propertyPath: m_Name
       value: Board

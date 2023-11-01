@@ -525,6 +525,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _blockContainer: {fileID: 7190801366500459709}
+  _boardSprite: {fileID: 6796768589182823046}
 --- !u!114 &-2885342344590102685
 MonoBehaviour:
   m_ObjectHideFlags: 0

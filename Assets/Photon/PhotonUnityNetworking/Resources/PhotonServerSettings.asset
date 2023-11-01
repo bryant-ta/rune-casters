@@ -55,6 +55,7 @@ MonoBehaviour:
   - S_CreateWall
   - S_ActivatePunchHitbox
   - S_UnsetParent
+  - Death
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

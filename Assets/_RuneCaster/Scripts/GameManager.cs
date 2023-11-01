@@ -53,4 +53,12 @@ public class GameManager : MonoBehaviour {
 		StartGameCountdown.EndEvent -= StartGame;
 		IsPaused = false;
 	}
+
+	public void CheckEndGame() {
+		
+	}
+
+	public void EndGame() {
+		
+	}
 }

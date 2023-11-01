@@ -67,6 +67,6 @@ public class PlayerInput : MonoBehaviourPun {
     }
 
     bool CanInput() {
-        return photonView.IsMine && !_player.StunnedTimer.IsTicking && !GameManager.Instance.IsPaused;
+        return photonView.IsMine && !_player.StunnedTimer.IsTicking && !GameManager.Instance.IsPaused && !_player.IsDead;
     }
 }
