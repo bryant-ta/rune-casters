@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="2e15f6e3-b3d9-49f6-8804-07dee8ca4474" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/Assets/Resources/PhotonPrefabs/Player.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/PhotonPrefabs/Player.prefab" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/_RuneCaster/Art/Animations/Wizard/Wizard_Animator.controller" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/_RuneCaster/Art/Animations/Wizard/Wizard_Animator.controller" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/_RuneCaster/Art/Animations/Wizard/Wizard_Idle_Anim.anim" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/_RuneCaster/Art/Animations/Wizard/Wizard_Idle_Anim.anim" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/_RuneCaster/Art/Animations/Wizard/Wizard_Walk_Anim.anim" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/_RuneCaster/Art/Animations/Wizard/Wizard_Walk_Anim.anim" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/_RuneCaster/Scenes/MainScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/_RuneCaster/Scenes/MainScene.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/_RuneCaster/Scripts/Player/PlayerAnimation.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/_RuneCaster/Scripts/Player/PlayerAnimation.cs" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "git-widget-placeholder": "main",
+    "node.js.selected.package.tslint": "(autodetect)"
+  }
+}]]></component>
+  <component name="TaskManager">
+    <servers />
+  </component>
+  <component name="UnityProjectConfiguration" hasMinimizedUI="true" />
+  <component name="UnityUnitTestConfiguration" currentTestLauncher="Both" />
+</project>

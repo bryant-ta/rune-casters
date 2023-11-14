@@ -1,5 +1,3 @@
-using System;
-using Photon.Pun;
 using UnityEngine;
 
 [RequireComponent(typeof(Animator))]
@@ -8,26 +6,24 @@ public class PlayerAnimation : MonoBehaviour
 {
     [SerializeField] private SpriteRenderer playerSprite;
     
-    private Rigidbody2D _rb;
     private Animator _animator;
+    private Vector2 _lastPos;
 
     private const string SpeedParameter = "speed";
     private static readonly int SpeedHash = Animator.StringToHash(SpeedParameter);
 
     public void Awake()
     {
-        _rb = GetComponent<Rigidbody2D>();
         _animator = GetComponent<Animator>();
+        _lastPos = transform.position;
     }
 
-    Vector2 _lastPos;
     public void Update() {
         Vector2 movementVector = (Vector2) transform.position - _lastPos;
-        float movementDiff = movementVector.magnitude * Math.Sign(movementVector.x);
         _animator.SetFloat(SpeedHash, movementVector.magnitude);
-        if (Mathf.Abs(movementDiff) > 0.05f)
+        if (Mathf.Abs(movementVector.x) > 0.02f)
         {
-            playerSprite.flipX = movementDiff > 0;
+            playerSprite.flipX = movementVector.x > 0;
         }
 
         _lastPos = transform.position;
