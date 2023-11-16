@@ -18,14 +18,20 @@ public class PlayerAnimation : MonoBehaviour
         _lastPos = transform.position;
     }
 
+    float _syncTime;
+    Vector2 _movementVector = Vector2.zero;
     public void Update() {
-        Vector2 movementVector = (Vector2) transform.position - _lastPos;
-        _animator.SetFloat(SpeedHash, movementVector.magnitude);
-        if (Mathf.Abs(movementVector.x) > 0.02f)
-        {
-            playerSprite.flipX = movementVector.x > 0;
+        if (Time.time > _syncTime) { // slight delay on updating movement vector to prevent stuttering on other clients
+            _movementVector = (Vector2) transform.position - _lastPos;
+            _animator.SetFloat(SpeedHash, _movementVector.magnitude);
+
+            _syncTime = Time.time + 0.02f; // some value that plays well with network sync rate for player pos - idk how well this works on slow connections
+            _lastPos = transform.position;
         }
 
-        _lastPos = transform.position;
+        if (Mathf.Abs(_movementVector.x) > 0.02f)
+        {
+            playerSprite.flipX = _movementVector.x > 0;
+        }
     }
 }
