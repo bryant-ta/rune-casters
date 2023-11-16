@@ -784,7 +784,7 @@ GameObject:
   - component: {fileID: 3482218626732991352}
   - component: {fileID: 6606721008523842599}
   m_Layer: 0
-  m_Name: DustParticleSsytem
+  m_Name: DustParticleSystem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -819,7 +819,7 @@ ParticleSystem:
   cullingMode: 0
   ringBufferMode: 0
   ringBufferLoopRange: {x: 0, y: 1}
-  emitterVelocityMode: 1
+  emitterVelocityMode: 0
   looping: 1
   prewarm: 0
   playOnAwake: 1
