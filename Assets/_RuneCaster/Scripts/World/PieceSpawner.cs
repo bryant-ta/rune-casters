@@ -32,7 +32,7 @@ public class PieceSpawner : MonoBehaviour {
 
 	PieceData GeneratePieceData() {
 		PieceData pieceData = PieceTypeLookUp.LookUp[Utils.GetRandomEnum<PieceType>()];
-		pieceData.Color = GameManager.Instance.ColorRollTable.GetRandom();
+		pieceData.SpellType = GameManager.Instance.PieceSpawnerRollTable.GetRandom();
 		pieceData.CanRotate = true;
 
 		return pieceData;

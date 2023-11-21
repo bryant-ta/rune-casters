@@ -6,12 +6,12 @@ using UnityEngine;
 [Serializable]
 public class Block {
     public Vector2Int Position;
-    public Color Color;
+    public SpellType SpellType;
     public bool IsActive;
 
-    public Block(Vector2Int position, Color color, bool isActive = true) {
+    public Block(Vector2Int position, SpellType spellType = SpellType.None, bool isActive = true) {
         Position = position;
-        Color = color;
+        SpellType = spellType;
         IsActive = isActive;
     }
 
@@ -29,20 +29,17 @@ public class Block {
     
     public static byte[] Serialize(object input)
     {
-    	var block = (Block)input;
+    	var data = (Block)input;
        
     	// Create a MemoryStream to store the serialized data
     	using (MemoryStream stream = new MemoryStream())
     	using (BinaryWriter writer = new BinaryWriter(stream))
     	{
     		// Serialize each field of the Block class
-    		writer.Write(block.Position.x);
-    		writer.Write(block.Position.y);
-    		writer.Write(block.Color.r);
-    		writer.Write(block.Color.g);
-    		writer.Write(block.Color.b);
-    		writer.Write(block.Color.a);
-    		writer.Write(block.IsActive);
+    		writer.Write(data.Position.x);
+    		writer.Write(data.Position.y);
+            writer.Write((int)data.SpellType);
+    		writer.Write(data.IsActive);
            
     		// Convert the MemoryStream to a byte array and return it
     		return stream.ToArray();
@@ -52,7 +49,7 @@ public class Block {
     public static object Deserialize(byte[] data)
     {
     	// Create a Block object with default values
-    	var result = new Block(Vector2Int.zero, Color.white);
+    	var result = new Block(Vector2Int.zero);
        
     	// Create a MemoryStream from the input data
     	using (MemoryStream stream = new MemoryStream(data))
@@ -61,10 +58,7 @@ public class Block {
     		// Deserialize each field of the Block class
     		result.Position.x = reader.ReadInt32();
     		result.Position.y = reader.ReadInt32();
-    		result.Color.r = reader.ReadSingle();
-    		result.Color.g = reader.ReadSingle();
-    		result.Color.b = reader.ReadSingle();
-    		result.Color.a = reader.ReadSingle();
+            result.SpellType = (SpellType) reader.ReadInt32();
     		result.IsActive = reader.ReadBoolean();
     	}
        

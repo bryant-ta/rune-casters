@@ -44,8 +44,8 @@ public static class PieceTypeLookUp {
 
 [Serializable]
 public struct PieceData {
+    public SpellType SpellType;
     public List<Vector2Int> Shape;
-    public Color Color;
     public bool CanRotate;
 
     #region Serialization
@@ -55,16 +55,13 @@ public struct PieceData {
         
         using (MemoryStream stream = new MemoryStream())
         using (BinaryWriter writer = new BinaryWriter(stream)) {
+            writer.Write((int)data.SpellType);
+            
             writer.Write(data.Shape.Count);
             foreach (Vector2Int pos in data.Shape) {
                 writer.Write(pos.x);
                 writer.Write(pos.y);
             }
-
-            writer.Write(data.Color.r);
-            writer.Write(data.Color.g);
-            writer.Write(data.Color.b);
-            writer.Write(data.Color.a);
 
             writer.Write(data.CanRotate);
 
@@ -77,6 +74,8 @@ public struct PieceData {
 
         using (MemoryStream stream = new MemoryStream(data))
         using (BinaryReader reader = new BinaryReader(stream)) {
+            result.SpellType = (SpellType) reader.ReadInt32();
+            
             int shapeCount = reader.ReadInt32();
             List<Vector2Int> shape = new List<Vector2Int>();
             for (int i = 0; i < shapeCount; i++) {
@@ -85,12 +84,6 @@ public struct PieceData {
                 shape.Add(new Vector2Int(x, y));
             }
             result.Shape = shape;
-
-            float r = reader.ReadSingle();
-            float g = reader.ReadSingle();
-            float b = reader.ReadSingle();
-            float a = reader.ReadSingle();
-            result.Color = new Color(r, g, b, a);
 
             result.CanRotate = reader.ReadBoolean();
         }

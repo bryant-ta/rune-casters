@@ -29,7 +29,7 @@ public class Factory : MonoBehaviourPun {
         // DEBUG
         if (PhotonNetwork.IsMasterClient && PhotonNetwork.InRoom && _flag) {
             PieceData bd = PieceTypeLookUp.LookUp[PieceType.L];
-            bd.Color = Color.cyan;
+            bd.SpellType = SpellType.Damage;
             bd.CanRotate = true;
 
             Piece p = CreatePieceObj(bd, new Vector2(0, 2));

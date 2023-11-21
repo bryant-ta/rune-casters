@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public enum SpellType {
+	None = -1,
 	Damage = 0,
 	Shield = 1,
 	Speed = 2,
@@ -51,10 +53,9 @@ public struct SpellProjectileData {
 	#endregion
 }
 
-// Used to allow inspector editing of spell color
 [Serializable]
-public struct SpellColor {
-	public SpellType Type;
-	public Color Color;
+public struct PieceSpawnerRollEntry {
+	public SpellType PieceSpellType;
 	public double SpawnPercentChance;
+	public Sprite PieceSprite;
 }

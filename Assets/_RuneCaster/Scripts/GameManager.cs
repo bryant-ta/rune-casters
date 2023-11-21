@@ -1,14 +1,15 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Timers;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class GameManager : MonoBehaviour {
 	public static GameManager Instance { get; private set; }
 
-	[SerializeField] List<SpellColor> SpellColors = new(); // for setting colors in inspector
-	public Dictionary<Color, SpellType> SpellColorDict { get; private set; }
-	public RollTable<Color> ColorRollTable { get; private set; }
+	[SerializeField] List<PieceSpawnerRollEntry> PieceDataConfig = new(); // for setting colors in inspector
+	public RollTable<SpellType> PieceSpawnerRollTable { get; private set; }
 
 	public int StartGameDelay;
 	public CountdownTimer StartGameCountdown { get; private set; }
@@ -24,23 +25,19 @@ public class GameManager : MonoBehaviour {
 			Instance = this;
 		}
 		
-		// Build SpellColorDict and piece color roll table
-		SpellColorDict = new Dictionary<Color, SpellType>();
-		ColorRollTable = new RollTable<Color>();
-		foreach (SpellColor spellColor in SpellColors) {
-			ColorRollTable.Add(spellColor.Color, spellColor.SpawnPercentChance);
-			SpellColorDict[spellColor.Color] = spellColor.Type;
+		// Build ColorRollTable
+		PieceSpawnerRollTable = new RollTable<SpellType>();
+		foreach (PieceSpawnerRollEntry pieceChances in PieceDataConfig) {
+			PieceSpawnerRollTable.Add(pieceChances.PieceSpellType, pieceChances.SpawnPercentChance);
 		}
 		
 		StartGameCountdown = new CountdownTimer(StartGameDelay);
 		IsPaused = true;
 		
-		// DEBUG
 		if (_debug) IsPaused = false;
 	}
 
 	public void StartInitialCountdown() {
-		// DEBUG
 		if (_debug) return;
 		
 		print("countdown started");
@@ -60,5 +57,11 @@ public class GameManager : MonoBehaviour {
 
 	public void EndGame() {
 		
+	}
+
+	public Sprite GetSpellTypeSprite(SpellType spellType) {
+		if (spellType == SpellType.None) return null;
+		
+		return PieceDataConfig.Single(x => x.PieceSpellType == spellType).PieceSprite;
 	}
 }

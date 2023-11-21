@@ -32,8 +32,8 @@ public class BoardRenderer : MonoBehaviour {
 		foreach (Block block in _board.Blocks) {
 			SpriteRenderer sr = _blockSprites[block];
 			sr.transform.localPosition = new Vector3(block.Position.x, block.Position.y, 0);
-			sr.color = block.Color;
-
+			_blockSprites[block].sprite = GameManager.Instance.GetSpellTypeSprite(block.SpellType);
+			
 			sr.gameObject.SetActive(block.IsActive);
 		}
 	}

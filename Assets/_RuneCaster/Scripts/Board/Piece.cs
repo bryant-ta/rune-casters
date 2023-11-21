@@ -1,15 +1,13 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using Photon.Pun;
 using UnityEngine;
-using UnityEngine.Events;
 
 public class Piece : MonoBehaviourPun, IPunInstantiateMagicCallback {
     public List<Vector2Int> Shape => _shape;
     [SerializeField] List<Vector2Int> _shape;
-    public Color Color => _color;
-    [SerializeField] Color _color;
+    public SpellType SpellType => _spellType;
+    [SerializeField] SpellType _spellType;
     public bool CanRotate => _canRotate;
     [SerializeField] bool _canRotate;
 
@@ -22,12 +20,12 @@ public class Piece : MonoBehaviourPun, IPunInstantiateMagicCallback {
 
     public void Init(PieceData pieceData) {
         _shape = pieceData.Shape;
-        _color = pieceData.Color;
+        _spellType = pieceData.SpellType;
         _canRotate = pieceData.CanRotate;
 
         // Populate Block list
         foreach (Vector2Int blockOffset in pieceData.Shape) {
-            Block block = new Block(blockOffset, pieceData.Color, true);
+            Block block = new Block(blockOffset, pieceData.SpellType, true);
             _blocks.Add(block);
         }
 
@@ -62,7 +60,7 @@ public class Piece : MonoBehaviourPun, IPunInstantiateMagicCallback {
         if (!_canRotate) return;
 
         foreach (Block block in _blocks) {
-            // Simplified rotation assuming pivot point is always (0,0)
+            // Simplified counterclockwise rotation assuming pivot point is always (0,0)
             int newX = -block.Position.y;
             int newY = block.Position.x;
 
@@ -71,4 +69,7 @@ public class Piece : MonoBehaviourPun, IPunInstantiateMagicCallback {
 
         OnRender.Invoke();
     }
+
+    public void SetEnableRender(bool doRender) { _pr.SetEnableRender(doRender); }
+    public List<GameObject> GetPieceBlockObjs() { return _pr.GetPieceBlockObjs(); }
 }

@@ -108,7 +108,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _shape: []
-  _color: {r: 0, g: 0, b: 0, a: 0}
+  _spellType: 0
   _canRotate: 0
 --- !u!114 &6571670783905464341
 MonoBehaviour:

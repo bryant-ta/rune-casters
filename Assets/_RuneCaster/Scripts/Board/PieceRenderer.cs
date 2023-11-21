@@ -24,7 +24,8 @@ public class PieceRenderer : MonoBehaviour {
             GameObject blockObj = Instantiate(Factory.BlockBase, _blockContainer, true);
 
             if (blockObj.TryGetComponent(out SpriteRenderer sr)) {
-                _blockSprites[block] = blockObj.GetComponent<SpriteRenderer>();
+                _blockSprites[block] = sr;
+                _blockSprites[block].sprite = GameManager.Instance.GetSpellTypeSprite(block.SpellType);
             } else {
                 Debug.LogError("Expected SpriteRender on Block base object");
             }
@@ -40,19 +41,32 @@ public class PieceRenderer : MonoBehaviour {
         foreach (Block block in _piece.Blocks) {
             SpriteRenderer sr = _blockSprites[block];
             sr.transform.localPosition = new Vector3(block.Position.x, block.Position.y, 0);
-            sr.color = block.Color;
         }
     }
 
     // TODO: actually overlay different texture on top of block sprite
     public void SetBlockOverlay() {
         foreach (var blockSprite in _blockSprites) {
-            blockSprite.Value.color = Color.black;
+            Color c = blockSprite.Value.color;
+            c.a = Constants.PiecePlacementOverlayAlpha;
+            blockSprite.Value.color = c;
         }
     }
     public void RemoveBlockOverlay() {
         foreach (var blockSprite in _blockSprites) {
-            blockSprite.Value.color = _piece.Color;
+            Color c = blockSprite.Value.color;
+            c.a = 1;
+            blockSprite.Value.color = c;
         }
+    }
+
+    public void SetEnableRender(bool doRender) { _blockContainer.gameObject.SetActive(doRender); }
+    public List<GameObject> GetPieceBlockObjs() {
+        List<GameObject> blockObjs = new();
+        foreach (var blockSprite in _blockSprites) {
+            blockObjs.Add(blockSprite.Value.gameObject);
+        }
+
+        return blockObjs;
     }
 }

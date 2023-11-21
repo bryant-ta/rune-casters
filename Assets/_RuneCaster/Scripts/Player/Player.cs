@@ -29,6 +29,7 @@ namespace Game {
         [Header("Pieces")]
     
         [SerializeField] Transform _heldPieceContainer;
+        [SerializeField] HeldPieceOutliner _heldPieceOutliner;
         [SerializeField] PieceRenderer _ghostPr;
         Piece _heldPiece;
         List<GameObject> _nearObjs = new();
@@ -143,8 +144,11 @@ namespace Game {
                 _heldPiece.photonView.RPC(nameof(MoveToPoint.Disable), RpcTarget.All);
             }
 
-            // Setup ghost piece
+            // Activate ghost piece overlay
             _ghostPr.Init(_heldPiece);
+            
+            // Activate held block highlight effect
+            _heldPieceOutliner.RefreshOutline(_heldPiece);
 
             // Take ownership of held piece
             // _heldPiece.photonView.RequestOwnership(); // server authoritative - requires Piece Ownership -> Request
@@ -163,28 +167,36 @@ namespace Game {
             Vector2Int hoverPoint = GetHeldPiececHoverPoint();
 
             if (_playerBoard.PlacePiece(_heldPiece, hoverPoint.x, hoverPoint.y)) {
+                // Deactivate held block highlight effect
+                _heldPieceOutliner.RefreshOutline(null);
+                    
                 _heldPiece = null;
                 return true;
-            } else {
-                Debug.Log($"Unable to place block at ({hoverPoint.x}, {hoverPoint.y})");
             }
 
             // Check if trashing
             RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.zero, 100.0f, _interactableLayer);
             if (hit) {
                 if (hit.collider.TryGetComponent(out Trash trash)) {
+                    // Deactivate held block highlight effect
+                    _heldPieceOutliner.RefreshOutline(null);
+                    
                     trash.TrashObj(_heldPiece.gameObject);
                     _heldPiece = null;
                     return true;
                 }
             }
 
+            Debug.Log($"Unable to place block at ({hoverPoint.x}, {hoverPoint.y})");
             return false;
         }
 
         // Drop releases held piece at player's position, ready to be picked up again
         void DropPiece() {
             if (_heldPiece == null) return;
+            
+            // Deactivate held block highlight effect
+            _heldPieceOutliner.RefreshOutline(null);
         
             // Release ownership of held piece
             _heldPiece.photonView.TransferOwnership(PhotonNetwork.MasterClient); // client authoritative - requires Piece Ownership -> Takeover
@@ -206,11 +218,13 @@ namespace Game {
             if (_lastHoverPoint == hoverPoint) return;
             _lastHoverPoint = hoverPoint;
 
-            // Disable ghost piece if held piece is not over player's board
+            // Disable ghost piece if held piece is not over player's board and vice versa
             if (_playerBoard.ValidatePiece(_heldPiece, hoverPoint.x, hoverPoint.y, _playerBoard.IsInBounds)) {
                 _ghostPr.gameObject.SetActive(true);
+                _heldPiece.SetEnableRender(false);
             } else {
                 _ghostPr.gameObject.SetActive(false);
+                _heldPiece.SetEnableRender(true);
                 return;
             }
 
@@ -284,7 +298,6 @@ namespace Game {
             if (hoverBlock == null || !hoverBlock.IsActive) return false; // hovering over nothing
 
             List<Block> spellBlocks = _playerBoard.FindColorBlockGroup(hoverPoint.x, hoverPoint.y);
-            Color color = spellBlocks[0].Color;
             int power = spellBlocks.Count;
             print($"Spell Power: {power}");
 
@@ -295,7 +308,7 @@ namespace Game {
 
             // Execute spell
             // note: replace this with more robust system if expanding spell types
-            SpellType spellType = GameManager.Instance.SpellColorDict[color];
+            SpellType spellType = spellBlocks[0].SpellType;
             switch (spellType) {
                 case SpellType.Damage:
                     _preparedSpellProjectile = new() {Dmg = power, Speed = power / 2 + 1};

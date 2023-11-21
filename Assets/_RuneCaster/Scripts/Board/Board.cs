@@ -23,7 +23,7 @@ public class Board : MonoBehaviourPun {
         _blocks = new Block[width, height];
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                _blocks[x, y] = new Block(new Vector2Int(x, y), Color.black, false);
+                _blocks[x, y] = new Block(new Vector2Int(x, y), SpellType.None, false);
             }
         }
 
@@ -49,16 +49,16 @@ public class Board : MonoBehaviourPun {
         return true;
     }
 
-    // Returns group of adjacent blocks with the same color
+    // Returns group of adjacent blocks with the same spellType
     public List<Block> FindColorBlockGroup(int originX, int originY) {
         if (!IsInBounds(originX, originY)) return null;
-        return FindAdjacentColorBlocks(originX, originY, _blocks[originX, originY].Color, new bool[_width, _height]);
+        return FindAdjacentColorBlocks(originX, originY, _blocks[originX, originY].SpellType, new bool[_width, _height]);
     }
 
     // Recursively find adjacent blocks of the same color as origin
-    List<Block> FindAdjacentColorBlocks(int x, int y, Color originColor, bool[,] visited) {
-        // Skip if block is out of bounds, already counted, is inactive(empty), or not the same color as origin
-        if (!IsInBounds(x, y) || visited[x, y] || !_blocks[x, y].IsActive || _blocks[x, y].Color != originColor) return new List<Block>();
+    List<Block> FindAdjacentColorBlocks(int x, int y, SpellType spellType, bool[,] visited) {
+        // Skip if block is out of bounds, already counted, is inactive(empty), or not the same spellType as origin
+        if (!IsInBounds(x, y) || visited[x, y] || !_blocks[x, y].IsActive || _blocks[x, y].SpellType != spellType) return new List<Block>();
 
         visited[x, y] = true;
         List<Block> ret = new() {_blocks[x, y]};
@@ -67,7 +67,7 @@ public class Board : MonoBehaviourPun {
         foreach (Vector2Int dir in directions) {
             int newX = x + dir.x;
             int newY = y + dir.y;
-            ret.AddRange(FindAdjacentColorBlocks(newX, newY, originColor, visited));
+            ret.AddRange(FindAdjacentColorBlocks(newX, newY, spellType, visited));
         }
 
         return ret;
@@ -82,7 +82,7 @@ public class Board : MonoBehaviourPun {
 
         Block boardBlock = _blocks[boardPos.x, boardPos.y];
         boardBlock.IsActive = true;
-        boardBlock.Color = newBlock.Color;
+        boardBlock.SpellType = newBlock.SpellType;
 
         _br.Render();
     }
