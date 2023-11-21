@@ -48,14 +48,25 @@ public class NetworkUtils : MonoBehaviour {
     /// RPC for resetting parent of target object.
     /// </summary>
     /// <param name="targetID">PhotonView ID of object to change.</param>
-    /// <param name="parentID">PhotonView ID of object to parent to. -1 = do not set parent</param>
+    /// <param name="parentID">PhotonView ID of object to parent to. -1 = unset parent</param>
     [PunRPC]
-    public void S_UnsetParent(int targetID) {
+    public void S_SetParent(int targetID, int parentID) {
         Transform targetTransform = PhotonView.Find(targetID).gameObject.transform;
         
         // note: enable Photon sync components if needed
-        
-        targetTransform.SetParent(null);
+
+        if (parentID == -1) {
+            targetTransform.SetParent(null);
+        } else {
+            Transform parentTransform = PhotonView.Find(parentID).gameObject.transform;
+            targetTransform.SetParent(parentTransform);
+        }
+    }
+
+    [PunRPC]
+    public void S_SetActive(int targetID, bool isActive) {
+        GameObject targetObj = PhotonView.Find(targetID).gameObject;
+        targetObj.SetActive(isActive);
     }
 
     [PunRPC]

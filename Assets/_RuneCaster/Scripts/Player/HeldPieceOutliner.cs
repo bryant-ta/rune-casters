@@ -1,49 +1,46 @@
 using System;
 using System.Collections.Generic;
+using Photon.Pun;
 using UnityEngine;
 
-public class HeldPieceOutliner : MonoBehaviour {
-	[SerializeField] Color _outlineColor;
-	
-	[SerializeField] List<SpriteRenderer> blockOutlinePool = new();
-	[SerializeField] GameObject _blockOutlinePrefab;
+// This used to have pooling, but is simplified for multiplayer logic
+public class HeldPieceOutliner : MonoBehaviourPun {
+    [SerializeField] Color _outlineColor;
 
-	void Awake() {
-		foreach (SpriteRenderer blockSr in blockOutlinePool) {
-			blockSr.color = _outlineColor;
-		}
-	}
+    [SerializeField] GameObject _blockOutlinePrefab;
 
-	// Update block outline effect to fit held piece
-	public void RefreshOutline(Piece heldPiece) {
-		// Reset outline
-		foreach (SpriteRenderer blockSr in blockOutlinePool) {
-			blockSr.gameObject.SetActive(false);
-			blockSr.transform.SetParent(transform);
-		}
+    // Move outlines on clients to fit held piece. Gets ref to block outline objs by heldPieceViewID since outline obj dont have one
+    [PunRPC]
+    public void S_CreateOutline(int heldPieceViewID) {
+        Piece heldPiece = PhotonView.Find(heldPieceViewID).GetComponent<Piece>();
+        if (heldPiece != null) {
+            // Match block outlines to held piece shape
+            List<GameObject> heldPieceBlockObj = heldPiece.GetPieceBlockObjs();
+            for (int i = 0; i < heldPiece.Shape.Count; i++) {
+                GameObject blockObj = CreateBlockOutline();
 
-		// Match block outlines to held piece shape
-		if (heldPiece != null) {
-			List<GameObject> heldPieceBlockObj = heldPiece.GetPieceBlockObjs();
-			for (int i = 0; i < heldPiece.Shape.Count; i++) {
-				SpriteRenderer blockSr = GetBlockOutline(i);
+                blockObj.transform.SetParent(heldPieceBlockObj[i].transform);
+                blockObj.transform.localPosition = Vector3.zero;
+                blockObj.SetActive(true);
+            }
+        }
+    }
 
-				blockSr.transform.SetParent(heldPieceBlockObj[i].transform);
-				blockSr.transform.localPosition = Vector3.zero;
-				blockSr.gameObject.SetActive(true);
-			}
-		}
-	}
+    GameObject CreateBlockOutline() {
+        SpriteRenderer blockSr = Instantiate(_blockOutlinePrefab, transform).GetComponent<SpriteRenderer>();
+        blockSr.color = _outlineColor;
+        return blockSr.gameObject;
+    }
 
-	SpriteRenderer GetBlockOutline(int index) {
-		if (index + 1 > blockOutlinePool.Count) {
-			SpriteRenderer blockSr = Instantiate(_blockOutlinePrefab, transform).GetComponent<SpriteRenderer>();
-			blockSr.color = _outlineColor;
-			
-			blockOutlinePool.Add(blockSr);
-			return blockSr;
-		}
-
-		return blockOutlinePool[index];
-	}
+    // SpriteRenderer GetBlockOutline(int index) {
+    // 	if (index + 1 > blockOutlinePool.Count) {
+    // 		SpriteRenderer blockSr = Instantiate(_blockOutlinePrefab, transform).GetComponent<SpriteRenderer>();
+    // 		blockSr.color = _outlineColor;
+    // 		
+    // 		blockOutlinePool.Add(blockSr);
+    // 		return blockSr;
+    // 	}
+    //
+    // 	return blockOutlinePool[index];
+    // }
 }

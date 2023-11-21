@@ -147,8 +147,8 @@ namespace Game {
             // Activate ghost piece overlay
             _ghostPr.Init(_heldPiece);
             
-            // Activate held block highlight effect
-            _heldPieceOutliner.RefreshOutline(_heldPiece);
+            // Create held block highlight effect
+            _heldPieceOutliner.photonView.RPC(nameof(HeldPieceOutliner.S_CreateOutline), RpcTarget.All, _heldPiece.photonView.ViewID);
 
             // Take ownership of held piece
             // _heldPiece.photonView.RequestOwnership(); // server authoritative - requires Piece Ownership -> Request
@@ -167,9 +167,6 @@ namespace Game {
             Vector2Int hoverPoint = GetHeldPiececHoverPoint();
 
             if (_playerBoard.PlacePiece(_heldPiece, hoverPoint.x, hoverPoint.y)) {
-                // Deactivate held block highlight effect
-                _heldPieceOutliner.RefreshOutline(null);
-                    
                 _heldPiece = null;
                 return true;
             }
@@ -178,9 +175,6 @@ namespace Game {
             RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.zero, 100.0f, _interactableLayer);
             if (hit) {
                 if (hit.collider.TryGetComponent(out Trash trash)) {
-                    // Deactivate held block highlight effect
-                    _heldPieceOutliner.RefreshOutline(null);
-                    
                     trash.TrashObj(_heldPiece.gameObject);
                     _heldPiece = null;
                     return true;
@@ -195,14 +189,11 @@ namespace Game {
         void DropPiece() {
             if (_heldPiece == null) return;
             
-            // Deactivate held block highlight effect
-            _heldPieceOutliner.RefreshOutline(null);
-        
             // Release ownership of held piece
             _heldPiece.photonView.TransferOwnership(PhotonNetwork.MasterClient); // client authoritative - requires Piece Ownership -> Takeover
 
             // Unparent held piece
-            NetworkManager.Instance.photonView.RPC(nameof(NetworkUtils.S_UnsetParent), RpcTarget.All, _heldPiece.photonView.ViewID);
+            NetworkManager.Instance.photonView.RPC(nameof(NetworkUtils.S_SetParent), RpcTarget.All, _heldPiece.photonView.ViewID, -1);
             _heldPiece = null;
         }
 
@@ -232,7 +223,6 @@ namespace Game {
             _ghostPr.transform.localPosition = new Vector3(hoverPoint.x, hoverPoint.y, 0);
 
             // Change ghost piece visual when placement would overlap an existing piece
-            // TODO: Add texture on ghost piece if invalid placement
             if (_playerBoard.ValidatePiece(_heldPiece, hoverPoint.x, hoverPoint.y, _playerBoard.IsValidPlacement)) {
                 _ghostPr.RemoveBlockOverlay();
             } else {

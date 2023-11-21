@@ -56,6 +56,10 @@ MonoBehaviour:
   - S_ActivatePunchHitbox
   - S_UnsetParent
   - Death
+  - S_RefreshOutline
+  - S_SetActive
+  - S_SetParent
+  - S_CreateOutline
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1
