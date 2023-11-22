@@ -103,19 +103,4 @@ public class PlayerHealth : MonoBehaviourPunCallbacks {
             OnUpdateShield.Invoke((float) _shield / _maxShield);
         }
     }
-
-    public void OnTriggerEnter2D(Collider2D col) {
-        if (!PhotonNetwork.IsMasterClient) return;
-
-        if (col.gameObject.CompareTag(TagsLookUp.LookUp[Tags.Spell])) {
-            SpellProjectile spellProjectile = col.gameObject.GetComponent<SpellProjectile>();
-            ModifyHp(-spellProjectile.Dmg);
-        }
-        if (col.gameObject.CompareTag(TagsLookUp.LookUp[Tags.Punch])) {
-            print("WTF");
-            PunchHitbox punchHitbox = col.gameObject.GetComponent<PunchHitbox>();
-            ModifyHp(-punchHitbox.Player.PunchDmg);
-            _player.StunnedTimer.Start();
-        }
-    }
 }

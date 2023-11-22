@@ -85,23 +85,4 @@
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
   </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Assets/_RuneCaster/Scripts/Player/PlayerHealth.cs</url>
-          <line>115</line>
-          <properties documentPath="C:\Users\bryan\Documents\1_Unity\RuneCasters\Assets\_RuneCaster\Scripts\Player\PlayerHealth.cs" initialLine="114" containingFunctionPresentation="method 'OnTriggerEnter2D'">
-            <startOffsets>
-              <option value="4262" />
-            </startOffsets>
-            <endOffsets>
-              <option value="4331" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="2" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
-  </component>
 </project>

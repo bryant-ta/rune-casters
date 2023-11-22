@@ -1,5 +1,68 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &373330521838674865
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5122635721533711933}
+  - component: {fileID: 1606330894731258517}
+  - component: {fileID: 1857970630878085401}
+  m_Layer: 0
+  m_Name: PlayerHitbox
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5122635721533711933
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 373330521838674865}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1069461258500976326}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!58 &1606330894731258517
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 373330521838674865}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  serializedVersion: 2
+  m_Radius: 0.7
+--- !u!114 &1857970630878085401
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 373330521838674865}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99a1fd5b1199dbd418e037ea3d304fc9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _player: {fileID: 4883813108509202539}
+  _playerHealth: {fileID: -5279473841808718174}
 --- !u!1 &1069461258500976345
 GameObject:
   m_ObjectHideFlags: 0
@@ -9,7 +72,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1069461258500976326}
-  - component: {fileID: -2775332642818205448}
   - component: {fileID: 695737292654742424}
   - component: {fileID: 1069461258500976327}
   - component: {fileID: 4883813108509202539}
@@ -42,28 +104,13 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5441843486577523421}
+  - {fileID: 5122635721533711933}
   - {fileID: 4924601821823815231}
   - {fileID: 7579005275616733752}
   - {fileID: 8453312242537280070}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!58 &-2775332642818205448
-CircleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1069461258500976345}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
-  serializedVersion: 2
-  m_Radius: 0.7
 --- !u!58 &695737292654742424
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -125,7 +172,7 @@ MonoBehaviour:
   _heldPieceOutliner: {fileID: 7328893717047884295}
   _ghostPr: {fileID: 0}
   _punchCooldown: 2
-  _punchDmg: 1
+  _punchDmg: 100
   _preparedSpellProjectile:
     Dmg: 0
     Speed: 0
@@ -668,7 +715,7 @@ Transform:
   - {fileID: 4905908835839269539}
   - {fileID: 2083296232927152989}
   m_Father: {fileID: 1069461258500976326}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &3542801211456319715
 MonoBehaviour:
@@ -842,7 +889,7 @@ Transform:
   m_Children:
   - {fileID: 6473598643485896135}
   m_Father: {fileID: 1069461258500976326}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6003586963333741068
 GameObject:
@@ -5695,7 +5742,7 @@ Transform:
   m_Children:
   - {fileID: 3463699070235942692}
   m_Father: {fileID: 1069461258500976326}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7425917648341597187
 GameObject:

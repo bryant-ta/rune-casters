@@ -17,6 +17,6 @@ public class EndGamePanel : MonoBehaviour {
 		PhotonNetwork.Disconnect(); // TODO: change to just loading main menu again but still logged in
 	}
 	public void OnRestartGameButtonClicked() {
-		
+		// TODO: restart the game with countdown
 	}
 }
