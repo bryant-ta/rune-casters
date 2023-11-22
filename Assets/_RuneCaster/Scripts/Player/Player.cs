@@ -20,7 +20,7 @@ namespace Game {
         public float stunDuration = 1f;     // should be less than punch cooldown
         public CountdownTimer StunnedTimer; // possibly replace with ref to stunned animation... or state machine?
 
-        public bool IsDead { get; private set; }
+        [field: SerializeField] public bool IsDead { get; private set; }
 
         PlayerMovement _playerMovement;
         PlayerHealth _playerHealth;
@@ -101,6 +101,8 @@ namespace Game {
             
             // TODO: add player death animation
             gameObject.SetActive(false);
+            
+            GameManager.Instance.CheckEndGame();
         }
 
         #region Piece
@@ -253,7 +255,6 @@ namespace Game {
             Vector3 dir = GetMouseDir().normalized;
             _playerMovement.SetVelocity(dir * (_playerMovement.MaxSpeed/2f + Constants.MinPunchDashDistance));
         
-            // Do punch, which can make a hit player drop their held piece
             photonView.RPC(nameof(S_ActivatePunchHitbox), RpcTarget.All);
         }
         [PunRPC]
@@ -374,10 +375,12 @@ namespace Game {
         public void Enable() {
             _playerBoard.gameObject.SetActive(true);
             enabled = true;
+            IsDead = false;
         }
         public void Disable() {
             _playerBoard.gameObject.SetActive(false);
             enabled = false;
+            IsDead = true;
         }
 
         Vector2Int GetHoverPoint() {

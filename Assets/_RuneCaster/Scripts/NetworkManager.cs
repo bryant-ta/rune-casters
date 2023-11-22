@@ -2,10 +2,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Game;
 using Photon.Pun;
+using Photon.Realtime;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
+using Player = Game.Player;
 
 public class NetworkManager : MonoBehaviourPunCallbacks {
     public static NetworkManager Instance { get; private set; }
@@ -20,19 +22,15 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
             Instance = this;
         }
 
-        // IMPORTANT: this aligns game's PlayerID with Photon's ActorID, so we don't have to do ActorID - 1 everywhere
+        // IMPORTANT: this aligns game's PlayerID with Photon's ActorID, so we don't have to do ActorID - 1 everywhere. kinda jank
         _playerList.Insert(0, null);
     }
 
-    void Start()
-    {
-        StartCoroutine(AfterConnected());
-    }
+    void Start() { StartCoroutine(AfterConnected()); }
 
-    IEnumerator AfterConnected()
-    {
+    IEnumerator AfterConnected() {
         yield return new WaitUntil(() => PhotonNetwork.InRoom);
-    
+
         // Setup Player
         int playerId = PhotonNetwork.LocalPlayer.ActorNumber;
         Player player = PlayerList[playerId];
@@ -41,16 +39,18 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
 
         // Enable Player on all clients
         photonView.RPC(nameof(EnablePlayerObj), RpcTarget.AllBuffered, playerId); // care for calling this often, buffered
-		
+
         // Set Player object ownership
         if (!player.photonView.IsMine) {
             player.photonView.TransferOwnership(PhotonNetwork.LocalPlayer); // client authoritative - requires Player Ownership -> Takeover
         }
-        
+
         // Send ready signal
         Hashtable props = new Hashtable {{CustomPropertiesKey.PlayerLoaded, true}};
         PhotonNetwork.LocalPlayer.SetCustomProperties(props);
     }
+
+    public override void OnDisconnected(DisconnectCause cause) { SceneManager.LoadScene("LobbyScene"); }
 
     public override void OnPlayerPropertiesUpdate(Photon.Realtime.Player targetPlayer, Hashtable changedProps) {
         // Start countdown for beginning game after all players are ready
@@ -74,7 +74,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
             }
         }
     }
-    
+
     public override void OnPlayerEnteredRoom(Photon.Realtime.Player newPlayer) {
         // Set PlayerID for each Player instance on each client
         int playerId = newPlayer.ActorNumber;

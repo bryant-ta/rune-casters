@@ -62,7 +62,7 @@ public class PlayerInput : MonoBehaviourPun {
         if (!photonView.IsMine) return;
 
         if (ctx.performed) {
-            _pauseMenu.OnTogglePauseMenu();
+            _pauseMenu.TogglePauseMenu();
         }
     }
 

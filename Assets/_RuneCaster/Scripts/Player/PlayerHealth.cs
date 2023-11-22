@@ -112,6 +112,7 @@ public class PlayerHealth : MonoBehaviourPunCallbacks {
             ModifyHp(-spellProjectile.Dmg);
         }
         if (col.gameObject.CompareTag(TagsLookUp.LookUp[Tags.Punch])) {
+            print("WTF");
             PunchHitbox punchHitbox = col.gameObject.GetComponent<PunchHitbox>();
             ModifyHp(-punchHitbox.Player.PunchDmg);
             _player.StunnedTimer.Start();

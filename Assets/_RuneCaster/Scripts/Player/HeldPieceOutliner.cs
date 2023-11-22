@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Photon.Pun;
 using UnityEngine;
@@ -31,16 +30,4 @@ public class HeldPieceOutliner : MonoBehaviourPun {
         blockSr.color = _outlineColor;
         return blockSr.gameObject;
     }
-
-    // SpriteRenderer GetBlockOutline(int index) {
-    // 	if (index + 1 > blockOutlinePool.Count) {
-    // 		SpriteRenderer blockSr = Instantiate(_blockOutlinePrefab, transform).GetComponent<SpriteRenderer>();
-    // 		blockSr.color = _outlineColor;
-    // 		
-    // 		blockOutlinePool.Add(blockSr);
-    // 		return blockSr;
-    // 	}
-    //
-    // 	return blockOutlinePool[index];
-    // }
 }

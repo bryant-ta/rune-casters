@@ -120,11 +120,12 @@ MonoBehaviour:
   _playerBoard: {fileID: 0}
   _playerPivot: {fileID: 7579005275616733752}
   stunDuration: 1
+  <IsDead>k__BackingField: 1
   _heldPieceContainer: {fileID: 4924601821823815231}
   _heldPieceOutliner: {fileID: 7328893717047884295}
   _ghostPr: {fileID: 0}
   _punchCooldown: 2
-  _punchDmg: 5
+  _punchDmg: 1
   _preparedSpellProjectile:
     Dmg: 0
     Speed: 0

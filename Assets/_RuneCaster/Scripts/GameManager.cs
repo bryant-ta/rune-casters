@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Game;
 using Timers;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 public class GameManager : MonoBehaviour {
 	public static GameManager Instance { get; private set; }
@@ -15,6 +15,7 @@ public class GameManager : MonoBehaviour {
 	public CountdownTimer StartGameCountdown { get; private set; }
 
 	public bool IsPaused;
+	public Action OnEndGame;
 
 	[SerializeField] bool _debug;
 
@@ -52,11 +53,17 @@ public class GameManager : MonoBehaviour {
 	}
 
 	public void CheckEndGame() {
-		
+		// accounting for placeholder player in PlayerList
+		bool onePlayerRemaining = NetworkManager.Instance.PlayerList.Count(player => player && !player.IsDead) == 1;
+		print(NetworkManager.Instance.PlayerList.Count(player => player && !player.IsDead) == 1);
+		if (onePlayerRemaining) {
+			EndGame();
+		}
 	}
 
 	public void EndGame() {
-		
+		IsPaused = true;
+		OnEndGame.Invoke();
 	}
 
 	public Sprite GetSpellTypeSprite(SpellType spellType) {
