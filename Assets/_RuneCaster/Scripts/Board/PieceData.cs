@@ -5,8 +5,9 @@ using UnityEngine;
 
 public enum PieceType {
     O1,
-    // O2,
-    // I2,
+    O2,
+    O3,
+    I2,
     // I3,
     I4,
     L,
@@ -21,12 +22,42 @@ public static class PieceTypeLookUp {
                 }
             }
         }, {
+            PieceType.O2, new PieceData() {
+                Shape = new List<Vector2Int>() {
+                    new(0,0),
+                    new(0,1),
+                    new(1,0),
+                    new(1,1),
+                }
+            }
+        }, {
+            PieceType.O3, new PieceData() {
+                Shape = new List<Vector2Int>() {
+                    new(0,0),
+                    new(0,1),
+                    new(0,-1),
+                    new(1,0),
+                    new(-1,0),
+                    new(1,1),
+                    new(1,-1),
+                    new(-1,1),
+                    new(-1,-1),
+                }
+            }
+        },  {
             PieceType.L, new PieceData() {
                 Shape = new List<Vector2Int>() {
                     new(0,0),
                     new(0,1),
                     new(0,-1),
                     new(1,-1),
+                }
+            }
+        }, {
+            PieceType.I2, new PieceData() {
+                Shape = new List<Vector2Int>() {
+                    new(0,0),
+                    new(0,1),
                 }
             }
         }, {
