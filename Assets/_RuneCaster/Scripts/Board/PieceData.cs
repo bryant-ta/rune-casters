@@ -8,7 +8,7 @@ public enum PieceType {
     O2,
     O3,
     I2,
-    // I3,
+    I3,
     I4,
     L,
 }
@@ -58,6 +58,14 @@ public static class PieceTypeLookUp {
                 Shape = new List<Vector2Int>() {
                     new(0,0),
                     new(0,1),
+                }
+            }
+        }, {
+            PieceType.I3, new PieceData() {
+                Shape = new List<Vector2Int>() {
+                    new(0,0),
+                    new(0,1),
+                    new(0,-1),
                 }
             }
         }, {
