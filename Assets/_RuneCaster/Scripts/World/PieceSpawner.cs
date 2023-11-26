@@ -26,7 +26,7 @@ public class PieceSpawner : MonoBehaviour {
 			mtp.OnReachedEnd += CleanUpPiece;
 		}
 
-		// TEMP: TODO: replace with drawn mini version of pieces
+		// TEMP: create mini version of pieces
 		piece.transform.localScale *= Constants.PieceShrinkFactor; // synced by PhotonTransformViewClassic
 	}
 

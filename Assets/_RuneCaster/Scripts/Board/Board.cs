@@ -6,7 +6,7 @@ using UnityEngine;
 [Serializable]
 public class Board : MonoBehaviourPun {
     public Block[,] Blocks => _blocks;
-    Block[,] _blocks; // TODO: write editor script to only show during play
+    Block[,] _blocks;
 
     public int Width => _width;
     public int Height => _height;

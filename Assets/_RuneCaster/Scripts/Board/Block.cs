@@ -16,12 +16,10 @@ public class Block {
     }
 
     public void MoveTo(Vector2Int pos) {
-        // TODO: add event triggering render in BlockRenderer
         Position = new Vector2Int(pos.x, pos.y);
     }
 
     public void MoveTo(int x, int y) {
-        // TODO: add event triggering render in BlockRenderer
         Position = new Vector2Int(x, y);
     }
 

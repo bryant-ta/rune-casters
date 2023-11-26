@@ -9,7 +9,7 @@ public class PlayerSpawner : MonoBehaviourPunCallbacks {
 	// public override void OnJoinedRoom() {
 	// 	// Check max players
 	// 	int curNumPlayers = PhotonNetwork.CurrentRoom.PlayerCount;
-	// 	if (curNumPlayers > 4) { // TODO: pull from Photon room info
+	// 	if (curNumPlayers > 4) {
 	// 		Debug.LogError("Failed to spawn player: room is full");
 	// 		return;
 	// 	}

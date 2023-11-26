@@ -44,7 +44,6 @@ public class PieceRenderer : MonoBehaviour {
         }
     }
 
-    // TODO: actually overlay different texture on top of block sprite
     public void SetBlockOverlay() {
         foreach (var blockSprite in _blockSprites) {
             Color c = blockSprite.Value.color;
