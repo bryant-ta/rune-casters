@@ -60,6 +60,7 @@ MonoBehaviour:
   - S_SetActive
   - S_SetParent
   - S_CreateOutline
+  - S_DestroyOutline
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

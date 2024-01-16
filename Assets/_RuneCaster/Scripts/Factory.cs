@@ -24,21 +24,6 @@ public class Factory : MonoBehaviourPun {
         SpellBase = _spellBase;
     }
 
-    bool _flag = true;
-    void Update() {
-        // DEBUG
-        if (PhotonNetwork.IsMasterClient && PhotonNetwork.InRoom && _flag) {
-            PieceData bd = PieceTypeLookUp.LookUp[PieceType.L];
-            bd.SpellType = SpellType.Damage;
-            bd.CanRotate = true;
-
-            Piece p = CreatePieceObj(bd, new Vector2(0, 2));
-            p.photonView.RPC(nameof(MoveToPoint.Disable), RpcTarget.All);
-
-            _flag = false;
-        }
-    }
-
     public Piece CreatePieceObj(PieceData pieceData, Vector2 position) {
         object[] initData = {pieceData};
         GameObject pieceObj = PhotonNetwork.Instantiate(Constants.PhotonPrefabsPath + _pieceBase.name, position,

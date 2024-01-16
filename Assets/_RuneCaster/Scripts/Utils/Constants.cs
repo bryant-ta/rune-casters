@@ -5,7 +5,7 @@ public static class Constants {
     // Debug Values
     public const float PieceShrinkFactor = 0.5f;
     public const float PiecePlacementOverlayAlpha = 0.6f;
-    public const float MinPunchDashDistance = 15f;
+    public const float MinPunchDashDistance = 20f;
     public const float PunchCooldown = 1f;
     public const float SpellInstantiatePosOffset = 2.5f;
     public const float SpellDuration = 15f; // TODO: not hardcode spell lifespan

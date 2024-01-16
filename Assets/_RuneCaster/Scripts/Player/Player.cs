@@ -190,7 +190,10 @@ namespace Game {
         // Drop releases held piece at player's position, ready to be picked up again
         void DropPiece() {
             if (_heldPiece == null) return;
-            
+
+            // Disable held block highlight effect
+            _heldPieceOutliner.photonView.RPC(nameof(HeldPieceOutliner.S_DestroyOutline), RpcTarget.All, _heldPiece.photonView.ViewID);
+
             // Release ownership of held piece
             _heldPiece.photonView.TransferOwnership(PhotonNetwork.MasterClient); // client authoritative - requires Piece Ownership -> Takeover
 
@@ -309,7 +312,7 @@ namespace Game {
                     _playerHealth.ModifyShield(power);
                     break;
                 case SpellType.Speed:
-                    _playerMovement.MultiplySpeedForDuration(1f + (float) power / 30);
+                    _playerMovement.MultiplySpeedForDuration(1f + (float) power / 20);
                     break;
                 case SpellType.Wall:
                     _wallSpellScale = 1 + power / 3f;

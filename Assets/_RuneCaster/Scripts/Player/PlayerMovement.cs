@@ -63,15 +63,10 @@ public class PlayerMovement : MonoBehaviourPun {
     }
 
     public void MultiplySpeedForDuration(float percent) {
-        if (SpeedingTimer.IsTicking) {
-            _maxSpeed = _origMaxSpeed;
-            _maxAcceleration = _origMaxAcceleration;
-        }
+        SpeedingTimer.Start();
         
         _maxSpeed *= percent;
         _maxAcceleration *= percent;
-        
-        SpeedingTimer.Start();
     }
     void ResetSpeed() {
         _maxSpeed = _origMaxSpeed;

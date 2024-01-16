@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using Photon.Pun;
 using UnityEngine;
 using UnityEngine.UI;
-using WebSocketSharp;
 
 // Based on DemoAsteroids Project from Photon Demos
 
@@ -193,7 +192,7 @@ public class LobbyMainPanel : MonoBehaviourPunCallbacks {
         roomName = (roomName.Equals(string.Empty)) ? "Room " + Random.Range(1000, 10000) : roomName;
 
         byte maxPlayers;
-        if (!MaxPlayersInputField.text.IsNullOrEmpty()) {
+        if (!string.IsNullOrEmpty(MaxPlayersInputField.text)) {
             byte.TryParse(MaxPlayersInputField.text, out maxPlayers);
             maxPlayers = (byte) Mathf.Clamp(maxPlayers, 2, 8);
         } else {

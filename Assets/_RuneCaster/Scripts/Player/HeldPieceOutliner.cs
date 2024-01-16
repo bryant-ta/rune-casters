@@ -14,13 +14,27 @@ public class HeldPieceOutliner : MonoBehaviourPun {
         Piece heldPiece = PhotonView.Find(heldPieceViewID).GetComponent<Piece>();
         if (heldPiece != null) {
             // Match block outlines to held piece shape
-            List<GameObject> heldPieceBlockObj = heldPiece.GetPieceBlockObjs();
+            List<GameObject> heldPieceBlockObjs = heldPiece.GetPieceBlockObjs();
             for (int i = 0; i < heldPiece.Shape.Count; i++) {
                 GameObject blockObj = CreateBlockOutline();
 
-                blockObj.transform.SetParent(heldPieceBlockObj[i].transform);
+                blockObj.transform.SetParent(heldPieceBlockObjs[i].transform);
                 blockObj.transform.localPosition = Vector3.zero;
                 blockObj.SetActive(true);
+            }
+        }
+    }
+
+    // Not efficient
+    [PunRPC]
+    public void S_DestroyOutline(int heldPieceViewID) {
+        Piece heldPiece = PhotonView.Find(heldPieceViewID).GetComponent<Piece>();
+        if (heldPiece != null) {
+            // Match block outlines to held piece shape
+            List<GameObject> heldPieceBlockObjs = heldPiece.GetPieceBlockObjs();
+            for (int i = 0; i < heldPiece.Shape.Count; i++) {
+                GameObject blockOutlineObj = heldPieceBlockObjs[i].transform.GetChild(0).gameObject;
+                Destroy(blockOutlineObj);
             }
         }
     }
