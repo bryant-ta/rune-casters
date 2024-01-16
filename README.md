@@ -14,3 +14,7 @@ Movement - WASD
 Left-Click - Punch/Dash | Pick up/Place Blocks
 Right-Click (when standing over blocks on your board) - Create Spell
 Space (after creating Fireball/Wall Spell) - Cast Spell
+
+---
+
+See /Demo for progress gifs and screenshots.
