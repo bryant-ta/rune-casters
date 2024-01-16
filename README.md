@@ -17,4 +17,9 @@ Space (after creating Fireball/Wall Spell) - Cast Spell
 
 ---
 
-See /Demo for progress gifs and screenshots.
+See /Demo for more progress gifs and screenshots.
+
+![gameplay](https://github.com/bryant-ta/rune-casters/blob/main/Demos/gameplay.gif)
+![lobby](https://github.com/bryant-ta/rune-casters/blob/main/Demos/lobby.gif)
+![steal](https://github.com/bryant-ta/rune-casters/blob/main/Demos/punching_and_steal.gif)
+![block shader](https://github.com/bryant-ta/rune-casters/blob/main/Demos/block_art_and_outline_short.gif)
